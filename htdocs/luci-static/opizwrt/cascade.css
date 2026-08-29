@@ -1631,7 +1631,12 @@ input[type="submit"]:hover, .btn.important:hover {
 .cbi-progressbar > div {
 	width: 0;
 	height: 100%;
-	background: var(--bar-bg);
+	/* Isian dibuat bening, bukan pekat. Angka di dalam bilah harus terbaca
+	   baik di bagian terisi maupun kosong, dan satu-satunya cara yang benar
+	   adalah membuat kedua latarnya cukup terang -- bukan mengakali warna
+	   teksnya dengan mode pencampuran. */
+	background: var(--accent-weak);
+	background: color-mix(in srgb, var(--accent) 30%, transparent);
 	transition: width .25s ease-in;
 }
 .cbi-progressbar::after {
@@ -1649,8 +1654,6 @@ input[type="submit"]:hover, .btn.important:hover {
 	white-space: pre;
 	text-overflow: ellipsis;
 	color: var(--text);
-	/* Angka harus terbaca baik di atas bagian terisi maupun kosong. */
-	mix-blend-mode: luminosity;
 }
 
 .cbi-tooltip-container,
