@@ -1865,9 +1865,17 @@ body.blank-page { display: block; }
 
 .hidden, [hidden] { display: none !important; }
 .inline { display: inline-block; }
-.left, .pull-left  { float: left; }
-.right, .pull-right { float: right; }
-.pull-right { margin-left: auto; }
+/* LuCI memakai .left/.right/.center pada sel tabel untuk PERATAAN TEKS,
+   bukan untuk float -- luci-theme-bootstrap dan luci-theme-material sama-sama
+   mendefinisikannya sebagai text-align. Menjadikannya float tidak terasa di
+   layar lebar karena float tidak berlaku pada table-cell; tapi di layar
+   sempit sel berubah jadi blok, float pun hidup, dan setiap .tr runtuh ke
+   tinggi nol. Itulah yang membuat seluruh halaman Status bertumpuk. */
+.left   { text-align: left; }
+.right  { text-align: right; }
+.center { text-align: center; }
+.pull-left  { float: left; }
+.pull-right { float: right; margin-left: auto; }
 .important { font-weight: 600; }
 .named { font-weight: 600; color: var(--text); }
 .size, .more { color: var(--text-3); }
@@ -1910,8 +1918,23 @@ body.blank-page { display: block; }
 	.cbi-value-title { flex: 1 1 auto; max-width: none; padding-top: 0; }
 	.cbi-value-field { flex: 1 1 auto; width: 100%; }
 
-	input[type="text"], input[type="password"], select, .cbi-dropdown,
-	.cbi-dynlist, .cbi-value-field .cbi-dropdown { max-width: none; }
+	/* Bentuk berkelas harus ikut disebut. Aturan dasarnya menyasar
+	   .cbi-input-select (0,1,0) yang mengalahkan select (0,0,1) di sini,
+	   sehingga tanpa ini menu pilihan tetap terkunci 25rem dan tampak lebih
+	   sempit daripada isian teks di sebelahnya. */
+	input[type="text"], input[type="password"], input[type="search"],
+	input[type="number"], input[type="email"], input[type="url"],
+	select, textarea,
+	.cbi-input-text, .cbi-input-password, .cbi-input-select, .cbi-input-textarea,
+	.cbi-dropdown, .cbi-dynlist,
+	.cbi-value-field .cbi-dropdown,
+	.cbi-value-field .cbi-input-select { max-width: none; }
+
+	/* Dynlist: butir dan kotak tambah ikut selebar wadahnya. */
+	.cbi-dynlist > .item { max-width: none; }
+	.cbi-dynlist > .add-item,
+	.cbi-dynlist > .add-item > input,
+	.cbi-dynlist > .add-item:not([ondrop]) > input { min-width: 0; width: 100%; }
 
 	.mobile-hide, .hide-sm { display: none !important; }
 
@@ -1927,7 +1950,10 @@ body.blank-page { display: block; }
 	/* Tabel berubah jadi kartu. LuCI menaruh nama kolom di data-title setiap
 	   sel, jadi judulnya bisa dimunculkan kembali di samping nilainya --
 	   tanpa itu tabel lebar hanya bisa digulir mendatar. */
-	.table, .tbody, .thead, .tr, .th, .td { display: block; }
+	/* .tr.placeholder harus ikut disebut: ia berkekuatan dua kelas, sehingga
+	   .tr saja kalah dan baris kosong tetap table-row di dalam tabel yang
+	   sudah jadi blok -- lebarnya menyusut mengikuti isinya. */
+	.table, .tbody, .thead, .tr, .th, .td, .tr.placeholder { display: block; }
 	.tr.table-titles, .tr.cbi-section-table-titles, .thead { display: none; }
 	.tbody .tr, .table > .tr {
 		margin-bottom: .625rem;
@@ -1963,6 +1989,32 @@ body.blank-page { display: block; }
 		text-align: left;
 	}
 	.td:empty { display: none; }
+
+	/* Baris dua sel tanpa data-title -- halaman Status hampir seluruhnya
+	   begitu -- lebih baik jadi satu baris label/nilai daripada satu kartu
+	   utuh per baris, yang membuat halaman jadi berkali lipat lebih panjang.
+	   Peramban tanpa :has() tetap mendapat tumpukan yang benar, hanya lebih
+	   tinggi; tidak ada yang rusak. */
+	.tr:not(:has(> .td[data-title])) {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		column-gap: 1rem;
+		padding: .375rem .625rem;
+	}
+	.tr:not(:has(> .td[data-title])) > .td {
+		border-bottom: 0;
+		padding: .0625rem 0;
+	}
+	.tr:not(:has(> .td[data-title])) > .td:first-child {
+		flex: 0 0 auto;
+		color: var(--text-2);
+	}
+	.tr:not(:has(> .td[data-title])) > .td:last-child {
+		flex: 1 1 8rem;
+		min-width: 0;
+		overflow-wrap: anywhere;
+	}
 
 	.cbi-page-actions { justify-content: stretch; }
 	.cbi-page-actions .btn, .cbi-page-actions button { flex: 1 1 auto; }
