@@ -57,12 +57,16 @@ every target of the same OpenWrt release.
 ### From a release (no build needed)
 
 ```sh
-cd /tmp
-wget https://github.com/rizkirmdhnnn/luci-theme-opizwrt/releases/latest/download/luci-theme-opizwrt.apk
+wget -O /tmp/luci-theme-opizwrt.apk \
+  https://github.com/rizkirmdhnnn/luci-theme-opizwrt/releases/latest/download/luci-theme-opizwrt.apk
 apk add --allow-untrusted /tmp/luci-theme-opizwrt.apk
 ```
 
 The package makes itself the active theme on install. Reload the page.
+
+`-O` is not optional. OpenWrt's `wget` is `uclient-fetch`, which follows the
+GitHub redirect and then names the file after the *redirected* URL — you end
+up with a UUID and a query string instead of an `.apk`.
 
 ### From source
 
