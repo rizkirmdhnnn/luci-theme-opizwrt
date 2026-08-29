@@ -814,22 +814,23 @@ footer a:hover { color: var(--accent); }
 	background: var(--accent);
 }
 
-/* Panel isi tab. LuCI sengaja tidak memakai display:none supaya panel bisa
-   beranimasi, jadi yang tidak aktif harus dilipat sendiri jadi setinggi nol.
-   Tanpa aturan ini seluruh isi setiap tab tampil sekaligus dan bertumpuk --
-   di halaman System berarti General Settings, Logging, Time Synchronization
-   dan Language and Style muncul semua dalam satu gulungan. */
-[data-tab-title] {
-	overflow: hidden;
-	height: 0;
-	margin: 0;
-	opacity: 0;
-}
-[data-tab-active="true"] {
-	overflow: visible;
-	height: auto;
-	opacity: 1;
-	transition: opacity .25s var(--ease);
+/* Panel isi tab. Tanpa aturan ini seluruh isi setiap tab tampil sekaligus dan
+   bertumpuk -- di halaman System berarti General Settings, Logging, Time
+   Synchronization dan Language and Style muncul semua dalam satu gulungan.
+
+   Disembunyikan dengan display:none, bukan height:0 seperti tema rujukan.
+   height:0 hanya menolkan kotak ISI: panel ini juga .cbi-section yang
+   berpadding 18px atas-bawah, jadi tiap panel tersembunyi tetap memakan 38px.
+   Di halaman Routing dengan empat tab itu berarti 114px ruang mati -- dan
+   karena panel tersembunyi berada di ATAS panel aktif untuk tab-tab yang
+   lebih kanan, jarak di atas isi tampak makin besar setiap kali berpindah ke
+   kanan. display:none meruntuhkan tinggi, padding, border dan margin
+   sekaligus.
+
+   Konsekuensinya perpindahan tab tidak lagi beranimasi. Itu pertukaran yang
+   sepadan: tata letak yang benar lebih berharga daripada lesapan 250ms. */
+[data-tab-title]:not([data-tab-active="true"]) {
+	display: none;
 }
 
 /* LuCI menuliskan jumlah galat validasi pada atribut data-errors tab yang
