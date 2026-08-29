@@ -268,6 +268,10 @@ h6, .h6 { font-size: .8125rem; text-transform: uppercase; letter-spacing: .04em;
 
 p { margin: 0 0 .75rem; }
 
+/* Bawaan peramban untuk <small> adalah 0.8em, jadi di dalam keterangan yang
+   sudah .75rem ia jatuh ke bawah 10px. Dipatok ke rem supaya tidak bertingkat. */
+small { font-size: .75rem; }
+
 hr {
 	height: 0;
 	border: 0;
@@ -275,11 +279,14 @@ hr {
 	margin: 1.25rem 0;
 }
 
+/* Ukuran dipatok ke rem, bukan em. Dengan em, <code> di dalam keterangan
+   (yang sendirinya .75rem) menyusut jadi 9,75px -- dan justru di sanalah
+   contoh sintaks yang paling perlu dibaca huruf demi huruf. */
 code, pre, tt, kbd, samp,
 .cbi-value-description code {
 	font-family: ui-monospace, SFMono-Regular, "SF Mono", "JetBrains Mono",
 	             Menlo, Consolas, monospace;
-	font-size: .8125em;
+	font-size: .8125rem;
 }
 
 pre {
@@ -445,28 +452,34 @@ header .showSide:hover { background: var(--surface-hover); }
    dua elemen semu, sedangkan palang yang dibutuhkan ada tiga. */
 header .showSide {
 	background-image: linear-gradient(var(--text), var(--text));
-	background-size: 1rem 2px;
-	background-position: .5rem center;
+	background-size: 1.125rem 2px;
+	background-position: center;
 	background-repeat: no-repeat;
 }
+/* Kedua palang dipusatkan lewat top/left 50% lalu digeser naik-turun, bukan
+   diukur dari tepi. Mengukur dari tepi membuat titik putarnya meleset dua
+   piksel dari pusat, dan silangnya jadi miring -- terbaca seperti coretan,
+   bukan tanda tutup. */
 header .showSide::before,
 header .showSide::after {
 	content: "";
 	position: absolute;
-	left: .5rem;
-	width: 1rem;
+	top: 50%;
+	left: 50%;
+	width: 1.125rem;
 	height: 2px;
+	margin: -1px 0 0 -.5625rem;
 	border-radius: 2px;
 	background: var(--text);
 	transition: transform var(--dur) var(--ease);
 }
-header .showSide::before { top: .6875rem; }
-header .showSide::after  { bottom: .6875rem; }
+header .showSide::before { transform: translateY(-5px); }
+header .showSide::after  { transform: translateY(5px); }
 
-/* Saat laci terbuka palang berubah jadi tanda silang. */
+/* Terbuka: keduanya kembali ke pusat dan berputar berlawanan. */
 body.sidebar-open header .showSide { background-image: none; }
-body.sidebar-open header .showSide::before { transform: translateY(.3125rem) rotate(45deg); }
-body.sidebar-open header .showSide::after  { transform: translateY(-.3125rem) rotate(-45deg); }
+body.sidebar-open header .showSide::before { transform: rotate(45deg); }
+body.sidebar-open header .showSide::after  { transform: rotate(-45deg); }
 
 .theme-toggle {
 	display: inline-flex;
@@ -1004,10 +1017,11 @@ legend {
 .tbody .tr:last-child .td,
 .table > .tr:last-child .td { border-bottom: 0; }
 
-.tbody .tr:hover .td,
-.table > .tr:hover:not(.table-titles):not(.cbi-section-table-titles) .td {
-	background: var(--surface-hover);
-}
+/* Sorot baris hanya pada tabel konfigurasi, yang barisnya memang bisa
+   disunting. Menyalakan setiap baris -- termasuk baris status yang hanya
+   dibaca -- membuat antarmuka menjanjikan sesuatu yang tidak ada, dan itu
+   melelahkan justru di halaman yang paling sering dibuka. */
+.tr.cbi-section-table-row:hover > .td { background: var(--surface-hover); }
 
 /* LuCI memberi kelas selang-seling; dibuat sangat samar supaya garis
    pemisah tetap yang memimpin mata, bukan blok warna. */
@@ -1135,6 +1149,17 @@ legend {
 	flex: 1 1 20rem;
 	min-width: 0;
 }
+
+/* Setiap anak .cbi-value harus boleh menyusut, dan harus dibatasi.
+   Dua hal bekerja melawan itu: flex item bawaannya min-width:auto sehingga
+   menolak mengecil di bawah lebar isinya; dan karena .cbi-value membungkus
+   (flex-wrap), item yang kelewat lebar justru pindah ke barisnya sendiri
+   sambil mempertahankan lebar itu, alih-alih menyusut. Jadi min-width:0 saja
+   tidak cukup -- perlu batas atas yang tegas. Tanpa keduanya satu <table>
+   lebar di halaman Tailscale membuat seluruh halaman bergulir mendatar,
+   betapapun tabelnya sendiri sudah disuruh menggulir sendiri. */
+.cbi-value > * { min-width: 0; }
+.cbi-value > *:not(.cbi-value-title) { max-width: 100%; }
 
 .cbi-value-description {
 	margin-top: .25rem;
@@ -2018,6 +2043,41 @@ body.blank-page { display: block; }
 
 	.cbi-page-actions { justify-content: stretch; }
 	.cbi-page-actions .btn, .cbi-page-actions button { flex: 1 1 auto; }
+
+	/* Sebagian aplikasi LuCI memakai <table> asli, bukan tata letak div milik
+	   LuCI, sehingga konversi kartu di atas tidak mengenainya. Tanpa ini
+	   halaman Tailscale mendorong seluruh dokumen bergulir mendatar 400px
+	   lebih -- dan yang bergeser bukan cuma tabelnya, tapi header dan seluruh
+	   isi halaman. */
+	table {
+		display: block;
+		width: 100%;
+		max-width: 100%;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	/* Kotak centang 17px terlalu kecil untuk ujung jari. */
+	input[type="checkbox"], input[type="radio"],
+	.cbi-input-checkbox, .cbi-input-radio {
+		width: 1.375rem;
+		height: 1.375rem;
+	}
+	input[type="checkbox"]:checked::after,
+	.cbi-input-checkbox:checked::after {
+		width: .4375rem; height: .75rem; margin-top: .125rem;
+	}
+	input[type="radio"]:checked::after,
+	.cbi-input-radio:checked::after {
+		width: .5rem; height: .5rem; margin: .375rem auto;
+	}
+
+	/* Tab dan label kolom: sedikit lebih besar supaya terbaca dan tertekan. */
+	.tabs > li > a, .cbi-tabmenu > li > a { padding: .5625rem .875rem; }
+	.th,
+	.tr.table-titles .th,
+	.tr.cbi-section-table-titles .th,
+	.td[data-title]::before { font-size: .75rem; }
 }
 
 @media (max-width: 480px) {
