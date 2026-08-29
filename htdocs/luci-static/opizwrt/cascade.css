@@ -1554,6 +1554,23 @@ input[type="submit"], input[type="button"], input[type="reset"] {
 }
 .cbi-dropdown > ul > li[display]:not([display="0"]) { border-left: 1px solid var(--line); }
 
+/* LuCI menaruh DUA versi isi di dalam setiap butir dropdown: .hide-open untuk
+   ditampilkan ketika menu TERTUTUP (label pendek, mis. "Off"), dan .hide-close
+   untuk ketika menu TERBUKA (judul tebal beserta keterangannya). Nama kelasnya
+   menyebut kapan ia disembunyikan, bukan kapan ia tampil -- mudah terbalik.
+   Tanpa aturan ini keduanya tampil sekaligus dan saling menimpa; paling
+   kentara pada pilihan Multi-Path TCP di halaman Network, yang setiap
+   butirnya jadi tumpang-tindih antara label dan keterangan. */
+.cbi-dropdown > ul.preview,
+.cbi-dropdown > ul > li .hide-close,
+.cbi-dropdown[open] > ul.dropdown > li .hide-open {
+	display: none;
+}
+.cbi-dropdown > ul > li .hide-open,
+.cbi-dropdown[open] > ul.dropdown > li .hide-close {
+	display: initial;
+}
+
 .cbi-dropdown[open] > ul.dropdown {
 	position: absolute;
 	z-index: 1100;
