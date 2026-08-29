@@ -538,7 +538,11 @@ body.sidebar-open header .showSide::after  { transform: rotate(-45deg); }
 	background: var(--glass);
 	-webkit-backdrop-filter: var(--glass-blur);
 	backdrop-filter: var(--glass-blur);
+	/* Kolom, supaya .side-foot bisa didorong ke dasar dengan margin-top:auto. */
+	display: flex;
+	flex-direction: column;
 }
+.main-left > .nav { flex: 0 0 auto; }
 
 /* min-width:0 wajib. Tanpa ini satu tabel lebar -- daftar sewa DHCP, tabel
    rute -- memaksa flex item melebar dan seluruh halaman bergulir mendatar. */
@@ -720,6 +724,58 @@ footer a:hover { color: var(--accent); }
 	background: var(--brand);
 	transform: translateY(-50%);
 }
+
+/* Penanda identitas di puncak sidebar. Logo di header terlalu jauh dari
+   daftar menu untuk berfungsi sebagai jangkar; yang ini memberi daftar itu
+   sebuah kepala. */
+.main-left .side-brand {
+	display: flex;
+	align-items: center;
+	gap: .5625rem;
+	flex: 0 0 auto;
+	padding: .25rem .625rem .75rem;
+	margin-bottom: .375rem;
+	border-bottom: 1px solid var(--line-soft);
+}
+.main-left .side-brand img { width: 24px; height: 24px; border-radius: 7px; box-shadow: var(--sh-1); }
+.main-left .side-brand span { font-size: .8125rem; font-weight: 600; letter-spacing: -.01em; color: var(--text); }
+
+/* Label bagian. Huruf kecil-kapital, bukan judul yang bisa diklik -- ia
+   menamai kelompok, bukan menawarkan tujuan. */
+.main-left .side-sect {
+	font-size: .59375rem;
+	font-weight: 700;
+	letter-spacing: .12em;
+	text-transform: uppercase;
+	color: var(--text-3);
+	padding: 0 .625rem;
+	margin: .125rem 0 .375rem;
+}
+
+/* Ikon hanya untuk kelompok tingkat pertama; anaknya sengaja tanpa ikon
+   supaya hierarkinya tetap terbaca. */
+.main-left .nav > li > a > .mi {
+	width: 16px;
+	height: 16px;
+	flex: 0 0 auto;
+	opacity: .8;
+}
+.main-left .nav > li.active > a > .mi,
+.main-left .nav > li > a.active > .mi { opacity: 1; }
+.main-left a { display: flex; align-items: center; gap: .5625rem; }
+.main-left .slide-menu a { gap: 0; }
+
+/* Log out dipindah ke kaki: ia mengakhiri sesi, bukan salah satu tujuan
+   yang setara dengan Status atau Network. */
+.main-left .side-foot {
+	margin-top: auto;
+	padding-top: .5rem;
+	border-top: 1px solid var(--line-soft);
+	flex: 0 0 auto;
+}
+.main-left .side-foot a { color: var(--text-3); }
+.main-left .side-foot a:hover { color: var(--text); }
+.main-left .side-foot .mi { width: 16px; height: 16px; flex: 0 0 auto; opacity: .75; }
 
 /* Menu moda (Status / Administration) — hanya tampil kalau ada lebih dari
    satu moda; LuCI yang memutuskan. */
@@ -1985,8 +2041,167 @@ body.blank-page { display: block; }
 .controls { flex: 1 1 auto; min-width: 0; }
 
 /* ========================================================================
+   14b. Navigasi ponsel: bilah tab + lembar bawah
+   ======================================================================== */
+
+/* Dirender oleh menu-opizwrt.js ke <body>, dan hanya tampak di bawah 768px.
+   Di layar lebar sidebar yang memimpin; keduanya tidak pernah tampil
+   bersamaan. */
+.tabbar { display: none; }
+.navsheet, .navsheet-scrim { display: none; }
+
+@media (max-width: 768px) {
+	.tabbar {
+		position: fixed;
+		/* Di atas lembar, bukan di bawahnya. Bilah tab harus tetap tampak dan
+		   bisa disentuh selagi lembar terbuka -- supaya berpindah kelompok
+		   cukup satu sentuhan, tanpa menutup lembar dulu. */
+		z-index: 134;
+		inset: auto 0 0 0;
+		display: flex;
+		align-items: stretch;
+		background: var(--glass);
+		-webkit-backdrop-filter: saturate(180%) blur(22px);
+		backdrop-filter: saturate(180%) blur(22px);
+		border-top: 1px solid var(--line);
+		/* Bilah gestur Android dan iOS duduk di sini. Tanpa cadangan ini,
+		   tab paling bawah tertimpa gestur dan nyaris tak bisa ditekan. */
+		padding: .375rem .25rem calc(.375rem + env(safe-area-inset-bottom, 0px));
+	}
+	.tabbar::before {
+		content: "";
+		position: absolute;
+		inset: 0 0 auto 0;
+		height: 1px;
+		background: var(--glass-edge);
+		pointer-events: none;
+	}
+
+	.tabbar .tab {
+		position: relative;
+		flex: 1 1 0;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: .1875rem;
+		padding: .375rem .125rem;
+		border: 0;
+		border-radius: var(--r-md);
+		background: transparent;
+		color: var(--text-3);
+		font: inherit;
+		cursor: pointer;
+		margin: 0;
+		box-shadow: none;
+		min-height: 0;
+	}
+	.tabbar .tab:hover { background: transparent; color: var(--text-2); }
+	.tabbar .tab .ti { width: 21px; height: 21px; }
+	.tabbar .tab span {
+		font-size: .65625rem;
+		font-weight: 500;
+		line-height: 1.2;
+		max-width: 100%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.tabbar .tab.on { color: var(--accent); }
+	.tabbar .tab.on span { font-weight: 600; }
+	/* Garis tipis di atas tab aktif -- penanda yang tidak menambah tinggi
+	   bilah, tidak seperti pil di belakang ikon. */
+	.tabbar .tab.on::before {
+		content: "";
+		position: absolute;
+		top: -.375rem;
+		right: 26%;
+		left: 26%;
+		height: 2.5px;
+		border-radius: 0 0 3px 3px;
+		background: var(--accent);
+	}
+
+	.navsheet-scrim {
+		position: fixed;
+		z-index: 131;
+		inset: 0;
+		display: block;
+		background: rgba(9, 12, 18, .42);
+		-webkit-backdrop-filter: blur(2px);
+		backdrop-filter: blur(2px);
+		opacity: 0;
+		visibility: hidden;
+		transition: opacity var(--dur) var(--ease), visibility var(--dur) var(--ease);
+	}
+	.navsheet {
+		position: fixed;
+		z-index: 132;
+		inset: auto 0 0 0;
+		display: block;
+		max-height: 72vh;
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		padding: .5rem .625rem calc(.625rem + 3.75rem + env(safe-area-inset-bottom, 0px));
+		border-top: 1px solid var(--line);
+		border-radius: var(--r-xl) var(--r-xl) 0 0;
+		background: var(--surface-solid);
+		box-shadow: var(--sh-3);
+		transform: translateY(102%);
+		transition: transform .28s var(--ease);
+	}
+	body.navsheet-open .navsheet-scrim { opacity: 1; visibility: visible; }
+	body.navsheet-open .navsheet { transform: translateY(0); }
+	body.navsheet-open { overflow: hidden; }
+
+	.navsheet .grip {
+		width: 2.25rem; height: 4px; border-radius: 99px;
+		background: var(--line-strong); margin: .125rem auto .625rem;
+	}
+	.navsheet-title {
+		margin: 0 0 .5rem;
+		padding: 0 .5rem;
+		font-size: .625rem;
+		font-weight: 700;
+		letter-spacing: .12em;
+		text-transform: uppercase;
+		color: var(--text-3);
+	}
+	.navsheet-list { list-style: none; margin: 0; padding: 0; }
+	.navsheet-list a {
+		display: block;
+		padding: .625rem;
+		border-radius: var(--r-md);
+		font-size: .84375rem;
+		color: var(--text);
+	}
+	.navsheet-list a:hover { background: var(--surface-hover); text-decoration: none; }
+	.navsheet-list li.on > a {
+		background: var(--accent-weak);
+		color: var(--accent);
+		font-weight: 600;
+	}
+}
+
+/* ========================================================================
    15. Tanggapan layar
    ======================================================================== */
+
+/* Kartu mengambang: sidebar dilepas dari tepi jendela supaya kanvas gradien
+   terlihat mengelilinginya. Hanya di layar lebar -- di bawah ini ia jadi laci
+   yang menempel penuh, dan margin justru mengurangi ruang bacanya. */
+@media (min-width: 1153px) {
+	.main-left {
+		top: calc(var(--header-h) + .75rem);
+		height: calc(100vh - var(--header-h) - 1.5rem);
+		margin: .75rem 0 .75rem .875rem;
+		border: 1px solid var(--glass-edge);
+		border-radius: var(--r-lg);
+		box-shadow: var(--sh-2);
+	}
+	#maincontent { padding-left: 1rem; }
+}
 
 /* Nilai ini harus sama dengan SIDEBAR_BREAKPOINT di menu-opizwrt.js. */
 @media (max-width: 1152px) {
@@ -2008,6 +2223,13 @@ body.blank-page { display: block; }
 }
 
 @media (max-width: 768px) {
+	/* Bilah tab mengambil alih sepenuhnya: laci, palang menu dan tirai
+	   gelapnya tidak lagi punya peran, dan membiarkannya hanya menawarkan
+	   dua jalan menuju hal yang sama. */
+	.main-left, .darkMask, header .showSide { display: none !important; }
+	/* Ruang bagi bilah tab supaya ia tidak menutupi baris terakhir. */
+	#maincontent { padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px)); }
+
 	.cbi-value { flex-direction: column; gap: .25rem; }
 	.cbi-value-title { flex: 1 1 auto; max-width: none; padding-top: 0; }
 	.cbi-value-field { flex: 1 1 auto; width: 100%; }
@@ -2159,7 +2381,10 @@ body.blank-page { display: block; }
 	.hide-xs { display: none !important; }
 	header .brand { font-size: .875rem; }
 	.cbi-section, .panel { padding: .875rem 1rem; border-radius: var(--r-md); }
-	#maincontent { padding: .75rem .625rem 2rem; }
+	/* Ruang bawahnya harus ikut disebut di sini. Menuliskan padding ringkas
+	   akan menghapus padding-bottom yang disetel blok 768px, dan baris
+	   terakhir halaman pun tertutup bilah tab. */
+	#maincontent { padding: .75rem .625rem calc(4.5rem + env(safe-area-inset-bottom, 0px)); }
 }
 
 /* ========================================================================
