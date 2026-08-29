@@ -17,6 +17,10 @@ env:
 jobs:
   build:
     runs-on: ubuntu-24.04
+    # GITHUB_TOKEN di repo baru bersifat baca-saja, sehingga langkah rilis
+    # ditolak dengan "Resource not accessible by integration".
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
