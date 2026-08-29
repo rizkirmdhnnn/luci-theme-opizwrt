@@ -769,7 +769,12 @@ footer a:hover { color: var(--accent); }
 	overflow-x: auto;
 }
 .tabs > li,
-.cbi-tabmenu > li { position: relative; }
+.cbi-tabmenu > li {
+	position: relative;
+	/* auto di atas teks berarti kursor sisipan, padahal butir tab bisa
+	   diklik seluruhnya. */
+	cursor: pointer;
+}
 
 .tabs > li > a,
 .cbi-tabmenu > li > a {
@@ -1023,10 +1028,14 @@ legend {
    melelahkan justru di halaman yang paling sering dibuka. */
 .tr.cbi-section-table-row:hover > .td { background: var(--surface-hover); }
 
-/* LuCI memberi kelas selang-seling; dibuat sangat samar supaya garis
-   pemisah tetap yang memimpin mata, bukan blok warna. */
-.cbi-rowstyle-2 .td,
-.tr.cbi-rowstyle-2 { background: var(--line-soft); }
+/* LuCI memberi kelas selang-seling pada baris genap, tapi di sini ia tidak
+   dipakai sama sekali. Warnanya mau tak mau memakai bahasa visual yang sama
+   dengan sorot hover, dan versi sebelumnya bahkan lebih gelap (.06) daripada
+   hover itu sendiri (.035) -- baris genap jadi tampak menyala permanen
+   seolah sedang disentuh kursor. Garis pemisah setipis rambut sudah cukup
+   memandu mata antar baris, dan ia tidak berpura-pura jadi keadaan apa pun. */
+.cbi-rowstyle-1,
+.cbi-rowstyle-2 { background: transparent; }
 
 .tr.placeholder .td {
 	padding: 1.5rem .625rem;
@@ -1428,7 +1437,7 @@ input[type="submit"]:hover, .btn.important:hover {
 	border-radius: var(--r-md);
 	background: var(--surface-solid);
 	color: var(--text);
-	cursor: default;
+	cursor: pointer;
 	transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
 }
 .cbi-dropdown:focus {
