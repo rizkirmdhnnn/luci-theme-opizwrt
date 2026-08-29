@@ -96,6 +96,34 @@ jobs:
             fi
           done
 
+          # Memeriksa keberadaan berkas saja tidak cukup. csstidy pernah
+          # memotong cascade.css jadi sepertiga ukurannya dan keluar dengan
+          # kode 0, sehingga paket terkirim dengan sepertiga aturan hilang
+          # tanpa satu pun tanda. Isinya harus ikut diperiksa.
+          echo "== keutuhan isi =="
+          CSS="$ROOT/www/luci-static/opizwrt/cascade.css"
+          JS="$ROOT/www/luci-static/resources/menu-opizwrt.js"
+
+          CSS_ASLI=$(wc -c < ../src/htdocs/luci-static/opizwrt/cascade.css)
+          CSS_JADI=$(wc -c < "$CSS")
+          echo "  cascade.css: $CSS_JADI byte (sumber $CSS_ASLI)"
+          # Batas 70%: memberi ruang bagi pemadatan yang sah, tapi menangkap
+          # pemotongan seperti 80k -> 11k.
+          if [ "$CSS_JADI" -lt $(( CSS_ASLI * 70 / 100 )) ]; then
+            echo "GAGAL: cascade.css menyusut di bawah 70% -- diduga terpotong"; exit 1
+          fi
+
+          # Penanda dari ujung-ujung berkas: kalau yang terakhir ada, seluruh
+          # isinya ada.
+          for penanda in ":root" "side-brand" "tabbar" "navsheet" "prefers-reduced-motion" "@media print"; do
+            if grep -q "$penanda" "$CSS"; then echo "  OK      css: $penanda"
+            else echo "  HILANG  css: $penanda"; exit 1; fi
+          done
+          for penanda in "renderMainMenu" "renderBilahTab" "pasangPenandaSidebar" "renderTabMenu"; do
+            if grep -q "$penanda" "$JS"; then echo "  OK      js: $penanda"
+            else echo "  HILANG  js: $penanda"; exit 1; fi
+          done
+
           mkdir -p ../out && cp "$PKG" ../out/
           # Salinan bernama tetap, supaya tautan
           # releases/latest/download/luci-theme-opizwrt.apk di README selalu
