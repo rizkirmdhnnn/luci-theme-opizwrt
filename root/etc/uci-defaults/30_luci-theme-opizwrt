@@ -1,0 +1,10 @@
+#!/bin/sh
+
+uci -q batch <<-EOT
+	delete luci.themes.Opizwrt
+	set luci.themes.Opizwrt=/luci-static/opizwrt
+	set luci.main.mediaurlbase=/luci-static/opizwrt
+	commit luci
+EOT
+
+exit 0

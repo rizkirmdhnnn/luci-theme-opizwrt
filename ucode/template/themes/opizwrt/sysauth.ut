@@ -1,0 +1,62 @@
+{#
+	luci-theme-opizwrt — halaman masuk
+	Copyright 2026 Rizpedia
+
+	Material tidak menyediakan template ini, sehingga LuCI jatuh ke milik inti
+	yang memanggil include('header') tanpa blank_page -- halaman masuk pun
+	tampil dengan header, sidebar kosong dan footer lengkap. Di sini halaman
+	masuk berdiri sendiri sebagai satu kartu.
+
+	Turunan dari template sysauth milik luci-base
+	(Steven Barth, Jo-Philipp Wich). Licensed under the Apache License 2.0
+-#}
+
+{% include('header', { blank_page: true }) %}
+
+<form method="post" class="login-form">
+	{% if (fuser): %}
+		<div class="alert-message error">
+			<p>{{ _('Invalid username and/or password! Please try again.') }}</p>
+		</div>
+	{% endif %}
+
+	<label class="login-label" for="luci_username">{{ _('Username') }}</label>
+	<input class="cbi-input-text login-input" type="text" name="luci_username"
+	       id="luci_username" autocomplete="username" value="{{ entityencode(duser, true) }}">
+
+	<label class="login-label" for="luci_password">{{ _('Password') }}</label>
+	<input class="cbi-input-text login-input" type="password" name="luci_password"
+	       id="luci_password" autocomplete="current-password">
+
+	<button type="submit" class="btn cbi-button cbi-button-apply login-submit">{{ _('Log in') }}</button>
+</form>
+
+{%
+	let https_ports = uci.get('uhttpd', 'main', 'listen_https') ?? [];
+	https_ports = uniq(filter(
+		map(
+			(type(https_ports) == 'string') ? split(https_ports, /\s+/) : https_ports,
+			e => +match(e, /\d+$/)?.[0]
+		),
+		p => (p >= 0 && p <= 65535)
+	));
+%}
+<script>
+	var input = document.getElementsByName('luci_password')[0];
+	if (input)
+		input.focus();
+
+	/* Kalau router juga melayani HTTPS, pindah ke sana diam-diam sebelum
+	   kata sandi dikirim lewat jalur polos. */
+	if (document.location.protocol != 'https:') {
+		{{ https_ports }}.forEach(function(port) {
+			var url = 'https://' + window.location.hostname + ':' + port + window.location.pathname;
+			var img = new Image();
+			img.onload = function() { window.location = url };
+			img.src = 'https://' + window.location.hostname + ':' + port + '{{ resource }}/icons/loading.svg?' + Math.random();
+			setTimeout(function() { img.src = '' }, 5000);
+		});
+	}
+</script>
+
+{% include('footer', { blank_page: true }) %}

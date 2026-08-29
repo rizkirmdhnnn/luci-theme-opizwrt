@@ -1,0 +1,121 @@
+{#
+	luci-theme-opizwrt — kaca cair untuk Opizwrt
+	Copyright 2026 Rizpedia
+
+	Struktur DOM di bawah ini bukan pilihan bebas: menu-opizwrt.js dan LuCI
+	inti mencari .showSide, .darkMask, .main > .loading, #mainmenu, #modemenu,
+	#indicators, #maincontent dan #tabmenu berdasarkan nama. Mengubah namanya
+	akan mematikan menu, bukan sekadar mengubah rupa.
+
+	Turunan dari luci-theme-material (Lutty Yang) dan luci-theme-bootstrap
+	(Steven Barth, Jo-Philipp Wich, David Menting).
+
+	Licensed to the public under the Apache License 2.0
+-#}
+
+{%
+	import { getuid, getspnam } from 'luci.core';
+
+	const boardinfo = ubus.call('system', 'board');
+
+	http.prepare_content('text/html; charset=UTF-8');
+-%}
+
+<!DOCTYPE html>
+<html lang="{{ dispatcher.lang }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#eef0f4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14171c" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="{{ media }}/cascade.css?v={{ version.luciversion }}">
+<link rel="icon" href="{{ media }}/logo.svg" sizes="any">
+{% if (node?.css): %}
+<link rel="stylesheet" href="{{ resource }}/{{ node.css }}">
+{% endif %}
+<script>
+/* Baca pilihan terang/gelap sebelum lukisan pertama. Tanpa ini, membuka
+   halaman dalam mode gelap akan berkedip putih dulu selama satu frame. */
+try {
+	var t = localStorage.getItem('opizwrt-theme');
+	if (t === 'light' || t === 'dark')
+		document.documentElement.setAttribute('data-theme', t);
+} catch (e) {}
+</script>
+<script src="{{ dispatcher.build_url('admin/translations', dispatcher.lang) }}"></script>
+<script src="{{ resource }}/cbi.js?v={{ version.luciversion }}"></script>
+<title>{{ striptags(`${boardinfo.hostname ?? '?'}${dispatched?.title ? ` | ${_(dispatched.title)}` : ''}`) }}</title>
+{% if (css): %}
+<style title="text/css">{{ css }}</style>
+{% endif %}
+</head>
+<body class="lang_{{ dispatcher.lang }} {{ ctx.authsession ? 'logged-in' : '' }} {{ blank_page ? 'blank-page' : '' }} {{ length(ctx.path) ? `node-${join('-', ctx.path)}` : 'node-main-login' }}" data-page="{{ entityencode(join('-', ctx.path), true) }}">
+
+{% if (!blank_page): %}
+<a class="skip-link" href="#maincontent">{{ _('Skip to content') }}</a>
+<header>
+	<div class="fill">
+		<div class="container">
+			<span class="showSide" role="button" tabindex="0" aria-label="{{ _('Menu') }}"></span>
+			<a id="logo" href="{{ ctx.authsession ? dispatcher.build_url('admin/status/overview') : '#' }}">
+				<img src="{{ media }}/logo.svg" alt="Opizwrt" width="30" height="30">
+			</a>
+			<a class="brand" href="#">{{ striptags(`${boardinfo.hostname ?? '?'}`) }}</a>
+			<span class="status" id="indicators"></span>
+			<button type="button" id="theme-toggle" class="theme-toggle" aria-label="{{ _('Toggle light or dark appearance') }}" title="{{ _('Toggle light or dark appearance') }}">
+				<svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4.2"/><g stroke-linecap="round"><path d="M12 2.2v2.5"/><path d="M12 19.3v2.5"/><path d="M21.8 12h-2.5"/><path d="M4.7 12H2.2"/><path d="M18.9 5.1l-1.8 1.8"/><path d="M6.9 17.1l-1.8 1.8"/><path d="M18.9 18.9l-1.8-1.8"/><path d="M6.9 6.9L5.1 5.1"/></g></svg>
+				<svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20.6 14.8A8.7 8.7 0 0 1 9.2 3.4 8.7 8.7 0 1 0 20.6 14.8z"/></svg>
+			</button>
+		</div>
+	</div>
+</header>
+<div class="main">
+	<div class="loading"><span><div class="loading-img"></div>{{ _('Collecting data...') }}</span></div>
+	<div class="main-left" id="mainmenu" style="display:none"></div>
+	<div class="main-right">
+		<div class="modemenu-buttons" style="display:none">
+			<ul id="modemenu"></ul>
+		</div>
+		<div class="darkMask"></div>
+		<div id="maincontent">
+			<div class="container">
+				{% if (getuid() == 0 && getspnam('root')?.pwdp === '' && ctx.authsession): %}
+					<div class="alert-message warning">
+						<h4>{{ _('No password set!') }}</h4>
+						<p>{{ _('There is no password set on this router. Please configure a root password to protect the web interface.') }}</p>
+						{% if (dispatcher.lookup("admin/system/admin")): %}
+						  <div class="right"><a class="btn" href="{{ dispatcher.build_url("admin/system/admin") }}">{{ _('Go to password configuration...') }}</a></div>
+						{% endif %}
+					</div>
+				{% endif %}
+
+				{% if (boardinfo?.rootfs_type == "initramfs"): %}
+					<div class="alert-message warning">
+						<h4>{{ _('System running in recovery (initramfs) mode.') }}</h4>
+						<p>{{ _('No changes to settings will be stored and are lost after rebooting. This mode should only be used to install a firmware upgrade') }}</p>
+						{% if (dispatcher.lookup("admin/system/flash")): %}
+						  <div class="right"><a class="btn" href="{{ dispatcher.build_url("admin/system/flash") }}">{{ _('Go to firmware upgrade...') }}</a></div>
+						{% endif %}
+					</div>
+				{% endif %}
+
+				<noscript>
+					<div class="alert-message warning">
+						<h4>{{ _('JavaScript required!') }}</h4>
+						<p>{{ _('You must enable JavaScript in your browser or LuCI will not work properly.') }}</p>
+					</div>
+				</noscript>
+
+				<div id="tabmenu" style="display:none"></div>
+{% else %}
+<div class="login-page">
+	<div class="login-card">
+		<div class="login-brand">
+			<img src="{{ media }}/logo.svg" alt="" width="46" height="46">
+			<div class="login-brand-text">
+				<h1>{{ striptags(`${boardinfo.hostname ?? '?'}`) }}</h1>
+				<p>{{ version?.distname ?? 'OpenWrt' }} {{ version?.distversion ?? '' }}</p>
+			</div>
+		</div>
+{% endif %}

@@ -1,0 +1,103 @@
+name: Build package
+
+# Tema ini tidak memuat kode arsitektur apa pun, jadi luci.mk memberinya
+# PKGARCH 'all': satu berkas .apk berlaku untuk semua target OpenWrt pada
+# rilis yang sama. Karena itu SDK x86/64 dipakai -- yang tercepat diunduh --
+# meski hasilnya dipasang di ARM, MIPS, atau apa pun.
+
+on:
+  push:
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+env:
+  RELEASE: 25.12.5
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: src
+
+      - name: Pasang dependensi build
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang flex bison g++ gawk \
+            gcc-multilib g++-multilib gettext git libncurses-dev libssl-dev \
+            python3-setuptools rsync swig unzip zlib1g-dev file wget zstd
+
+      - name: Unduh SDK OpenWrt ${{ env.RELEASE }}
+        run: |
+          BASE=https://downloads.openwrt.org/releases/$RELEASE/targets/x86/64
+          # Nama berkas SDK memuat versi toolchain yang berubah antar rilis,
+          # jadi ia dibaca dari sha256sums alih-alih dipaku.
+          SDK=$(curl -fsSL "$BASE/sha256sums" | grep -o 'openwrt-sdk-[^ ]*\.tar\.zst' | head -1)
+          echo "SDK: $SDK"
+          curl -fsSL -O "$BASE/$SDK"
+          tar --zstd -xf "$SDK"
+          mv "${SDK%.tar.zst}" sdk
+
+      - name: Siapkan feed LuCI
+        working-directory: sdk
+        run: |
+          # luci.mk dibutuhkan Makefile paket ini. Hanya feed luci yang
+          # diperbarui; sisanya tidak relevan dan hanya memperlambat.
+          ./scripts/feeds update luci
+          ./scripts/feeds install luci-base
+          test -f feeds/luci/luci.mk || { echo "GAGAL: luci.mk tidak ada"; exit 1; }
+
+      - name: Pasang paket tema
+        working-directory: sdk
+        run: |
+          cp -r ../src package/luci-theme-opizwrt
+          rm -rf package/luci-theme-opizwrt/.git package/luci-theme-opizwrt/docs
+          chmod +x package/luci-theme-opizwrt/root/etc/uci-defaults/30_luci-theme-opizwrt
+
+      - name: Build
+        working-directory: sdk
+        run: |
+          echo "CONFIG_PACKAGE_luci-theme-opizwrt=m" > .config
+          make defconfig
+          make package/luci-theme-opizwrt/compile -j$(nproc) V=s 2>&1 | tail -30
+
+      - name: Periksa hasil
+        working-directory: sdk
+        run: |
+          PKG=$(find bin -name 'luci-theme-opizwrt*.apk' -o -name 'luci-theme-opizwrt*.ipk' | head -1)
+          test -n "$PKG" || { echo "GAGAL: paket tidak terbentuk"; exit 1; }
+          echo "paket: $PKG ($(du -h "$PKG" | cut -f1))"
+
+          # Berkas yang wajib ada. Salah satu hilang berarti tema terpasang
+          # tapi tidak akan tampil -- kegagalan yang sunyi kalau tidak diuji.
+          echo "== isi paket =="
+          tar -tzf "$PKG" 2>/dev/null | sed 's/^/  /' || \
+            (mkdir -p /tmp/x && tar -xf "$PKG" -C /tmp/x && find /tmp/x -type f | sed 's/^/  /')
+
+          for f in cascade.css logo.svg menu-opizwrt.js header.ut footer.ut sysauth.ut; do
+            if tar -tf "$PKG" 2>/dev/null | grep -q "$f" || find /tmp/x -name "$f" | grep -q .; then
+              echo "  OK      $f"
+            else
+              echo "  HILANG  $f"; exit 1
+            fi
+          done
+
+          mkdir -p ../out && cp "$PKG" ../out/
+          # Salinan bernama tetap, supaya tautan
+          # releases/latest/download/luci-theme-opizwrt.apk di README selalu
+          # menunjuk berkas yang ada -- nama asli memuat nomor versi.
+          cp "$PKG" "../out/luci-theme-opizwrt.${PKG##*.}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: luci-theme-opizwrt
+          path: out/*
+
+      - name: Lampirkan ke rilis
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: out/*
+          generate_release_notes: true
