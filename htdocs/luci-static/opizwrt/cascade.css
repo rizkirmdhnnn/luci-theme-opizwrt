@@ -1088,8 +1088,18 @@ legend {
 /* Isi sel harus boleh dipatahkan. Alamat MAC, daftar antarmuka dan nama
    domain adalah satu kata panjang tanpa spasi; tanpa izin mematah, lebar
    minimum tabel melampaui wadahnya dan seluruh halaman ikut bergulir
-   mendatar -- halaman PBR meluber 42px bahkan di layar 1440px. */
-.td, .th, td, th { overflow-wrap: anywhere; }
+   mendatar -- halaman PBR meluber 42px bahkan di layar 1440px.
+
+   Dipakai break-word, BUKAN anywhere. Keduanya sama-sama mematah kata yang
+   tidak muat, tapi anywhere juga mengecilkan lebar minimum kolom sampai
+   selebar satu huruf -- dan browser lalu benar-benar memakainya. Akibatnya
+   di halaman Processes kepala kolom "PID" pecah jadi "PI/D", "OWNER" jadi
+   "OW/NE/R", bahkan nilai "root" jadi "roo/t". break-word memberi hasil yang
+   dicari (kata panjang boleh patah) tanpa merusak lebar kolom.
+
+   Hanya untuk tata letak tabel milik LuCI; pada <table> asli lebar kolom
+   justru harus dipertahankan supaya tabelnya menggulir, bukan meruncing. */
+.td, .th { overflow-wrap: break-word; }
 
 /* Rasa */
 .table {
@@ -2288,18 +2298,36 @@ body.blank-page { display: block; }
 
 	.mobile-hide, .hide-sm { display: none !important; }
 
-	/* Sebagian aplikasi LuCI memakai <table> asli yang tidak tersentuh
-	   konversi kartu di atas. Di sini display-nya boleh diubah tanpa rugi --
-	   tabel memang sudah tidak dipakai sebagai tabel di layar sempit. Nama
-	   elemennya perlu disebut bersama kelasnya, karena aturan .table (0,1,0)
-	   mengalahkan table (0,0,1). */
-	table, table.table, table.cbi-section-table {
+	/* LuCI menandai sel aksinya dengan kelas .nowrap supaya tombolnya tetap
+	   satu baris rapi -- benar di layar lebar, tempat kolomnya memang
+	   dilebarkan untuk itu. Di ponsel sel itu jadi blok selebar 352px
+	   sementara empat tombol halaman Startup butuh 380px, dan larangan
+	   membungkus mendorong yang terakhir keluar layar. Larangannya dicabut
+	   di sini; begitu sel bukan lagi sel tabel, ia tak punya guna.
+	   Kelas .nowrap yang berdiri sendiri -- pada lencana dan alamat --
+	   sengaja tidak disentuh. */
+	.td.nowrap, .th.nowrap { white-space: normal; }
+	.td.nowrap > div { white-space: normal; }
+	.cbi-section-actions { white-space: normal; text-align: left; }
+
+	/* Hanya <table> asli TANPA kelas .table milik LuCI. Tabel LuCI sudah
+	   diubah jadi kartu oleh aturan di atas; memaksanya menggulir justru
+	   membatalkan konversi itu dan mengembalikan tata letak tabel yang
+	   tidak muat.
+
+	   Selnya dilarang mematah supaya kolomnya mempertahankan lebar alami
+	   dan tabelnya benar-benar menggulir. Tanpa itu kolom runtuh sampai
+	   selebar satu huruf dan tabelnya memanjang ke bawah alih-alih ke
+	   samping -- yang justru lebih buruk daripada meluber. */
+	table:not(.table) {
 		display: block;
 		width: 100%;
 		max-width: 100%;
 		overflow-x: auto;
 		-webkit-overflow-scrolling: touch;
 	}
+	table:not(.table) td,
+	table:not(.table) th { white-space: nowrap; }
 
 	/* Membungkus membuat tab ketiga terpotong separuh kata. Satu baris yang
 	   bisa digulir lebih jujur: pengguna melihat ada lanjutannya. */
