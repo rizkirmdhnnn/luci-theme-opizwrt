@@ -864,11 +864,13 @@ footer a:hover { color: var(--accent); }
 	margin: 0 0 .375rem;
 }
 
-/* Keterangan bagian mengikuti lebar panelnya. Sebelumnya dipatok 62ch, yang
-   di layar lebar berarti satu kolom 508px kesepian di dalam panel 1336px --
-   788px kosong di sebelahnya, dan halaman tampak belum selesai dimuat.
-   Batas atasnya tetap ada supaya di monitor sangat lebar barisnya tidak
-   memanjang tak berkesudahan. */
+/* Keterangan bagian memenuhi lebar panelnya, tanpa batas.
+   Dua percobaan sebelumnya memakai batas ukur baca -- 62ch lalu 110ch -- dan
+   keduanya meninggalkan ruang kosong di sebelah kanan yang membuat halaman
+   tampak belum selesai dimuat. Ukur baca yang rapi memang lebih nyaman untuk
+   prosa panjang, tapi keterangan LuCI cuma dua-tiga kalimat rujukan yang
+   dibaca sekali, dan keseimbangan halaman lebih berharga di sini. Ini juga
+   yang dilakukan luci-theme-bootstrap dan luci-theme-material. */
 .cbi-map-descr,
 .cbi-section-descr,
 .cbi-section-table-descr {
@@ -876,7 +878,6 @@ footer a:hover { color: var(--accent); }
 	line-height: 1.6;
 	color: var(--text-2);
 	margin: 0 0 1rem;
-	max-width: 110ch;
 }
 
 /* Panel. Nyaris pekat dan tanpa blur, dengan sengaja: inilah tempat angka,
