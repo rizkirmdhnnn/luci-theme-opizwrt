@@ -15,8 +15,16 @@
 
 {%
 	import { getuid, getspnam } from 'luci.core';
+	import { stat } from 'fs';
 
 	const boardinfo = ubus.call('system', 'board');
+
+	// Penanda cache diambil dari waktu-ubah berkas CSS itu sendiri, bukan dari
+	// versi LuCI. Versi LuCI tidak ikut berubah ketika tema dimutakhirkan,
+	// sehingga peramban akan menyajikan cascade.css lama selamanya -- setiap
+	// rilis tema pun tampak tidak berefek sampai pengguna memuat-paksa halaman,
+	// dan hampir tidak ada yang tahu harus melakukan itu.
+	const cssver = stat(`/www${media}/cascade.css`)?.mtime ?? version?.luciversion ?? '1';
 
 	http.prepare_content('text/html; charset=UTF-8');
 -%}
@@ -29,7 +37,7 @@
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#eef0f4" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#14171c" media="(prefers-color-scheme: dark)">
-<link rel="stylesheet" href="{{ media }}/cascade.css?v={{ version.luciversion }}">
+<link rel="stylesheet" href="{{ media }}/cascade.css?v={{ cssver }}">
 <link rel="icon" href="{{ media }}/logo.svg" sizes="any">
 {% if (node?.css): %}
 <link rel="stylesheet" href="{{ resource }}/{{ node.css }}">
