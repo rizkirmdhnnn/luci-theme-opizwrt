@@ -994,6 +994,12 @@ legend {
 .table[width="100%"], .th[width="100%"], .td[width="100%"] { width: 100%; }
 .tr.placeholder { display: table-row; }
 
+/* Isi sel harus boleh dipatahkan. Alamat MAC, daftar antarmuka dan nama
+   domain adalah satu kata panjang tanpa spasi; tanpa izin mematah, lebar
+   minimum tabel melampaui wadahnya dan seluruh halaman ikut bergulir
+   mendatar -- halaman PBR meluber 42px bahkan di layar 1440px. */
+.td, .th, td, th { overflow-wrap: anywhere; }
+
 /* Rasa */
 .table {
 	border-collapse: collapse;
@@ -1015,7 +1021,13 @@ legend {
 	color: var(--text-3);
 	text-align: left;
 	vertical-align: bottom;
-	white-space: nowrap;
+	/* Kepala kolom TIDAK dilarang mematah. Melarangnya membuat tabel berkolom
+	   banyak tidak bisa menyusut: di halaman PBR, "Local addresses" dan
+	   "Remote addresses" saja memakan 198px dan 214px, dan sepuluh kolom
+	   menjumlah 1184px di dalam wadah 1152px -- seluruh halaman ikut bergulir
+	   mendatar. Kepala kolom yang mematah dua baris itu lumrah di tabel padat;
+	   halaman yang bergeser tidak. Kelas .nowrap tetap dihormati bila LuCI
+	   memintanya secara eksplisit. */
 }
 
 .td {
@@ -1416,6 +1428,21 @@ input[type="submit"]:hover, .btn.important:hover {
 	flex-wrap: wrap;
 	gap: .5rem;
 }
+
+/* LuCI menaruh tombol aksi di dalam <div> polos tanpa jarak apa pun di banyak
+   halaman -- Interfaces, Startup, DNS, Firewall, PBR, Processes -- sehingga
+   tombol bersebelahan benar-benar bersentuhan. Terukur 0px: tepinya menyatu
+   jadi satu strip, dan pada layar sentuh nyaris mustahil menekan yang benar.
+   Jarak diberikan pada tombolnya sendiri supaya berlaku di mana pun LuCI
+   meletakkannya, lalu dinolkan pada wadah yang sudah mengatur gap sendiri
+   agar jaraknya tidak jadi dobel. */
+.btn, button, .cbi-button,
+input[type="submit"], input[type="button"], input[type="reset"] {
+	margin: 0 .375rem .25rem 0;
+}
+.cbi-page-actions > *,
+.button-row > *,
+.cbi-section-create > * { margin: 0; }
 
 .cbi-image-button {
 	min-height: 0;
@@ -1987,6 +2014,19 @@ body.blank-page { display: block; }
 
 	.mobile-hide, .hide-sm { display: none !important; }
 
+	/* Sebagian aplikasi LuCI memakai <table> asli yang tidak tersentuh
+	   konversi kartu di atas. Di sini display-nya boleh diubah tanpa rugi --
+	   tabel memang sudah tidak dipakai sebagai tabel di layar sempit. Nama
+	   elemennya perlu disebut bersama kelasnya, karena aturan .table (0,1,0)
+	   mengalahkan table (0,0,1). */
+	table, table.table, table.cbi-section-table {
+		display: block;
+		width: 100%;
+		max-width: 100%;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
 	/* Membungkus membuat tab ketiga terpotong separuh kata. Satu baris yang
 	   bisa digulir lebih jujur: pengguna melihat ada lanjutannya. */
 	.tabs, .cbi-tabmenu {
@@ -2073,19 +2113,6 @@ body.blank-page { display: block; }
 
 	.cbi-page-actions { justify-content: stretch; }
 	.cbi-page-actions .btn, .cbi-page-actions button { flex: 1 1 auto; }
-
-	/* Sebagian aplikasi LuCI memakai <table> asli, bukan tata letak div milik
-	   LuCI, sehingga konversi kartu di atas tidak mengenainya. Tanpa ini
-	   halaman Tailscale mendorong seluruh dokumen bergulir mendatar 400px
-	   lebih -- dan yang bergeser bukan cuma tabelnya, tapi header dan seluruh
-	   isi halaman. */
-	table {
-		display: block;
-		width: 100%;
-		max-width: 100%;
-		overflow-x: auto;
-		-webkit-overflow-scrolling: touch;
-	}
 
 	/* Kotak centang 17px terlalu kecil untuk ujung jari. */
 	input[type="checkbox"], input[type="radio"],
