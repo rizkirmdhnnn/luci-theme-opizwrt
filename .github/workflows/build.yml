@@ -70,14 +70,22 @@ jobs:
           test -n "$PKG" || { echo "GAGAL: paket tidak terbentuk"; exit 1; }
           echo "paket: $PKG ($(du -h "$PKG" | cut -f1))"
 
-          # Berkas yang wajib ada. Salah satu hilang berarti tema terpasang
-          # tapi tidak akan tampil -- kegagalan yang sunyi kalau tidak diuji.
-          echo "== isi paket =="
-          tar -tzf "$PKG" 2>/dev/null | sed 's/^/  /' || \
-            (mkdir -p /tmp/x && tar -xf "$PKG" -C /tmp/x && find /tmp/x -type f | sed 's/^/  /')
+          # apk-tools 3 memakai format arsip baru yang tidak terbaca oleh tar,
+          # jadi isi paket diperiksa dari direktori yang dipaketkan buildroot,
+          # bukan dari berkas hasilnya. Isinya sama persis.
+          ROOT=$(find build_dir -path '*/www/luci-static/opizwrt/cascade.css' | head -1)
+          test -n "$ROOT" || { echo "GAGAL: direktori paket tidak ditemukan"; exit 1; }
+          ROOT=${ROOT%/www/luci-static/opizwrt/cascade.css}
 
-          for f in cascade.css logo.svg menu-opizwrt.js header.ut footer.ut sysauth.ut; do
-            if tar -tf "$PKG" 2>/dev/null | grep -q "$f" || find /tmp/x -name "$f" | grep -q .; then
+          echo "== isi paket =="
+          (cd "$ROOT" && find . -type f | sort | sed 's|^\.|  |')
+
+          # Satu berkas hilang berarti tema terpasang tapi tidak pernah tampil,
+          # dan itu kegagalan yang sunyi kalau tidak diuji di sini.
+          echo "== berkas wajib =="
+          for f in cascade.css logo.svg menu-opizwrt.js \
+                   header.ut footer.ut sysauth.ut 30_luci-theme-opizwrt; do
+            if find "$ROOT" -name "$f" | grep -q .; then
               echo "  OK      $f"
             else
               echo "  HILANG  $f"; exit 1
