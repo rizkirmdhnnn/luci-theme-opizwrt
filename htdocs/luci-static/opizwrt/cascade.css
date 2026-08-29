@@ -2298,6 +2298,15 @@ body.blank-page { display: block; }
 
 	.mobile-hide, .hide-sm { display: none !important; }
 
+	/* ...kecuali sel tabel. LuCI menandai sebagian kolom .hide-sm/.hide-xs
+	   supaya tabelnya muat di layar sempit -- alasan yang sah selama ia masih
+	   tabel dan kolomnya berebut lebar. Di sini tabel sudah jadi kartu dan
+	   tiap medan punya barisnya sendiri, jadi tidak ada yang direbut. Yang
+	   tersisa hanya kerugiannya: di halaman Wireless, kolom yang disembunyikan
+	   itu justru alamat MAC -- penanda paling berguna di sana. */
+	.td.hide-sm, .td.hide-xs, .th.hide-sm, .th.hide-xs { display: block !important; }
+	.td.hide-sm[data-title], .td.hide-xs[data-title] { display: flex !important; }
+
 	/* LuCI menandai sel aksinya dengan kelas .nowrap supaya tombolnya tetap
 	   satu baris rapi -- benar di layar lebar, tempat kolomnya memang
 	   dilebarkan untuk itu. Di ponsel sel itu jadi blok selebar 352px
