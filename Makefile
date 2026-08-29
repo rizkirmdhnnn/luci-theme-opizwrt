@@ -17,7 +17,7 @@ LUCI_TITLE:=Opizwrt theme (liquid glass)
 LUCI_DEPENDS:=
 LUCI_PKGARCH:=all
 
-PKG_VERSION:=1.0.1
+PKG_VERSION:=1.0.2
 PKG_RELEASE:=1
 PKG_LICENSE:=Apache-2.0
 PKG_MAINTAINER:=Rizpedia <achmadrizkiramadhan0101@gmail.com>

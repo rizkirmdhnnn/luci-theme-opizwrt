@@ -775,13 +775,17 @@ footer a:hover { color: var(--accent); }
 	color: var(--text);
 	text-decoration: none;
 }
+/* Tab halaman menandai yang aktif dengan .active, tab di dalam formulir
+   dengan .cbi-tab (dan .cbi-tab-disabled untuk sisanya). Dua kosakata untuk
+   hal yang sama; menyebut .active saja membuat tab formulir tidak pernah
+   terlihat aktif. */
 .tabs > li.active > a,
-.cbi-tabmenu > li.active > a {
+.cbi-tabmenu > li.cbi-tab > a {
 	color: var(--accent);
 	font-weight: 600;
 }
 .tabs > li.active::after,
-.cbi-tabmenu > li.active::after {
+.cbi-tabmenu > li.cbi-tab::after {
 	content: "";
 	position: absolute;
 	right: .5rem;
@@ -791,6 +795,44 @@ footer a:hover { color: var(--accent); }
 	border-radius: 2px 2px 0 0;
 	background: var(--accent);
 }
+
+/* Panel isi tab. LuCI sengaja tidak memakai display:none supaya panel bisa
+   beranimasi, jadi yang tidak aktif harus dilipat sendiri jadi setinggi nol.
+   Tanpa aturan ini seluruh isi setiap tab tampil sekaligus dan bertumpuk --
+   di halaman System berarti General Settings, Logging, Time Synchronization
+   dan Language and Style muncul semua dalam satu gulungan. */
+[data-tab-title] {
+	overflow: hidden;
+	height: 0;
+	margin: 0;
+	opacity: 0;
+}
+[data-tab-active="true"] {
+	overflow: visible;
+	height: auto;
+	opacity: 1;
+	transition: opacity .25s var(--ease);
+}
+
+/* LuCI menuliskan jumlah galat validasi pada atribut data-errors tab yang
+   bersangkutan. Tanpa aturan ini, isian yang salah di tab lain gagal tersimpan
+   tanpa petunjuk apa pun tentang tab mana yang bermasalah. */
+.cbi-tabmenu > li[data-errors]::before {
+	content: attr(data-errors);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 1.125rem;
+	height: 1.125rem;
+	margin-right: .375rem;
+	padding: 0 .25rem;
+	border-radius: 999px;
+	background: var(--err);
+	color: #fff;
+	font-size: .6875rem;
+	font-weight: 700;
+}
+.cbi-tabmenu > li[data-errors] > a { color: var(--err); }
 
 /* ========================================================================
    6. Permukaan
@@ -1472,6 +1514,25 @@ input[type="submit"]:hover, .btn.important:hover {
 .cbi-dropdown[open] .zonebadge { width: auto; }
 .cbi-dropdown[placeholder*="select"] { max-width: 25rem; height: auto; }
 
+/* Sebagian tombol LuCI sebenarnya .cbi-dropdown yang menyamar jadi tombol --
+   tombol belah "Save & Apply" adalah yang paling sering terlihat. Lebar isian
+   tidak berlaku untuk mereka: tanpa pengecualian ini "Save & Apply" melar
+   sampai 25rem berdampingan dengan tombol Save dan Reset yang normal. */
+.cbi-dropdown.btn,
+.cbi-dropdown.cbi-button {
+	width: auto;
+	max-width: none;
+	padding-right: 0;
+}
+.cbi-dropdown.btn > ul,
+.cbi-dropdown.cbi-button > ul { width: auto; }
+.cbi-dropdown.btn > .open,
+.cbi-dropdown.cbi-button > .open {
+	color: inherit;
+	opacity: .75;
+	margin-left: .125rem;
+}
+
 .cbi-value-field .cbi-dropdown,
 .cbi-value-field .cbi-input-select,
 .cbi-value input[type="text"],
@@ -1543,13 +1604,17 @@ input[type="submit"]:hover, .btn.important:hover {
    11. Lencana
    ======================================================================== */
 
+/* Radius pil hanya benar untuk lencana satu baris. .ifacebadge kadang memuat
+   blok status antarmuka setinggi delapan baris -- di sana 999px berubah jadi
+   oval raksasa, jadi keduanya dipisah: pil untuk .label, sudut biasa untuk
+   lencana yang isinya bisa memanjang. */
 .ifacebadge, .zonebadge, .label {
 	display: inline-flex;
 	align-items: center;
 	gap: .3125rem;
 	padding: .125rem .5rem;
 	border: 1px solid var(--line);
-	border-radius: 999px;
+	border-radius: var(--r-md);
 	background: var(--surface-2);
 	font-size: .75rem;
 	font-weight: 500;
@@ -1560,12 +1625,17 @@ input[type="submit"]:hover, .btn.important:hover {
 .ifacebadge img, .zonebadge img { max-height: 1em; width: auto; }
 .ifacebadge > em { font-style: normal; color: var(--text); font-weight: 600; }
 
+.label { border-radius: 999px; }
 .label.notice,  .label.info    { border-color: transparent; background: var(--info-bg); color: var(--info); }
 .label.success, .label.ok      { border-color: transparent; background: var(--ok-bg);   color: var(--ok); }
 .label.warning                 { border-color: transparent; background: var(--warn-bg); color: var(--warn); }
 .label.danger, .label.error    { border-color: transparent; background: var(--err-bg);  color: var(--err); }
 
 .zonebadge { padding: .1875rem .5625rem; }
+/* Blok status berbaris banyak: ikon diikat ke atas, teks dibiarkan mengalir. */
+.ifacebadge { align-items: flex-start; padding: .3125rem .5rem; }
+.ifacebadge > img:first-child { margin-top: .125rem; }
+.td .ifacebadge, .th .ifacebadge { align-items: center; padding: .125rem .5rem; }
 .zonebadge-empty {
 	border-style: dashed;
 	background: transparent;
@@ -1583,8 +1653,12 @@ input[type="submit"]:hover, .btn.important:hover {
    12. Modal, bilah kemajuan, tooltip
    ======================================================================== */
 
-.modal-overlay,
-.modal-overlay-active {
+/* Wadah modal LuCI selalu ada di DOM, juga saat tidak ada modal terbuka, dan
+   kelas penanda .modal-overlay-active dipasang pada <body> -- bukan pada
+   overlay-nya. Menyasar kelas itu sebagai selektor overlay membuat #modal_overlay
+   tidak pernah tersentuh aturan apa pun: ia jadi div statis biasa, dan kotak
+   putih kosong ikut menggantung di kaki setiap halaman. */
+#modal_overlay {
 	position: fixed;
 	z-index: 1000;
 	inset: 0;
@@ -1596,7 +1670,12 @@ input[type="submit"]:hover, .btn.important:hover {
 	background: rgba(9, 12, 18, .44);
 	-webkit-backdrop-filter: blur(3px);
 	backdrop-filter: blur(3px);
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity .2s var(--ease), visibility .2s var(--ease);
 }
+body.modal-overlay-active { overflow: hidden; }
+body.modal-overlay-active #modal_overlay { opacity: 1; visibility: visible; }
 
 .modal, .cbi-modal {
 	width: 100%;
@@ -1617,6 +1696,8 @@ input[type="submit"]:hover, .btn.important:hover {
 }
 .cbi-modal .cbi-tabmenu { margin-left: 0; }
 .cbi-modal .cbi-page-actions { border: 0; background: transparent; box-shadow: none; padding: .875rem 0 0; }
+.modal .button-row { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: flex-end; width: 100%; }
+.modal .button-row > button:first-of-type { margin-right: auto; }
 
 .cbi-progressbar {
 	position: relative;
