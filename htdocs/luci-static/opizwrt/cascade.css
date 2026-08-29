@@ -2044,22 +2044,28 @@ body.blank-page { display: block; }
 	   utuh per baris, yang membuat halaman jadi berkali lipat lebih panjang.
 	   Peramban tanpa :has() tetap mendapat tumpukan yang benar, hanya lebih
 	   tinggi; tidak ada yang rusak. */
-	.tr:not(:has(> .td[data-title])) {
+	/* Baris judul WAJIB dikecualikan di sini. :has() mengambil kekuatan
+	   argumennya, jadi .tr:not(:has(> .td[data-title])) bernilai (0,3,0) --
+	   mengalahkan aturan penyembunyi .tr.table-titles yang hanya (0,2,0), dan
+	   letaknya pun lebih belakang. Tanpa pengecualian ini baris nama kolom
+	   justru dipaksa tampil sebagai kartu berisi nama-nama kolom berdesakan,
+	   tepat di atas data yang sudah membawa namanya sendiri lewat data-title. */
+	.tr:not(.table-titles):not(.cbi-section-table-titles):not(:has(> .td[data-title])) {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: baseline;
 		column-gap: 1rem;
 		padding: .375rem .625rem;
 	}
-	.tr:not(:has(> .td[data-title])) > .td {
+	.tr:not(.table-titles):not(.cbi-section-table-titles):not(:has(> .td[data-title])) > .td {
 		border-bottom: 0;
 		padding: .0625rem 0;
 	}
-	.tr:not(:has(> .td[data-title])) > .td:first-child {
+	.tr:not(.table-titles):not(.cbi-section-table-titles):not(:has(> .td[data-title])) > .td:first-child {
 		flex: 0 0 auto;
 		color: var(--text-2);
 	}
-	.tr:not(:has(> .td[data-title])) > .td:last-child {
+	.tr:not(.table-titles):not(.cbi-section-table-titles):not(:has(> .td[data-title])) > .td:last-child {
 		flex: 1 1 8rem;
 		min-width: 0;
 		overflow-wrap: anywhere;
