@@ -864,14 +864,19 @@ footer a:hover { color: var(--accent); }
 	margin: 0 0 .375rem;
 }
 
+/* Keterangan bagian mengikuti lebar panelnya. Sebelumnya dipatok 62ch, yang
+   di layar lebar berarti satu kolom 508px kesepian di dalam panel 1336px --
+   788px kosong di sebelahnya, dan halaman tampak belum selesai dimuat.
+   Batas atasnya tetap ada supaya di monitor sangat lebar barisnya tidak
+   memanjang tak berkesudahan. */
 .cbi-map-descr,
 .cbi-section-descr,
 .cbi-section-table-descr {
 	font-size: .8125rem;
-	line-height: 1.55;
+	line-height: 1.6;
 	color: var(--text-2);
 	margin: 0 0 1rem;
-	max-width: 62ch;
+	max-width: 110ch;
 }
 
 /* Panel. Nyaris pekat dan tanpa blur, dengan sengaja: inilah tempat angka,
@@ -1169,6 +1174,15 @@ legend {
    betapapun tabelnya sendiri sudah disuruh menggulir sendiri. */
 .cbi-value > * { min-width: 0; }
 .cbi-value > *:not(.cbi-value-title) { max-width: 100%; }
+
+/* LuCI kadang menyarangkan seluruh section bertabel di dalam satu .cbi-value.
+   Sebagai flex item bawaannya flex-grow:0, jadi ia berhenti selebar isinya --
+   tabel konfigurasi pun berhenti di 939px di dalam panel 1336px sementara
+   tabel status di bawahnya memenuhi lebar penuh. Perbedaan itu terbaca
+   seperti kesalahan, dan memang kesalahan. */
+.cbi-value > *:not(.cbi-value-title):not(.cbi-value-field) {
+	flex: 1 1 auto;
+}
 
 .cbi-value-description {
 	margin-top: .25rem;
