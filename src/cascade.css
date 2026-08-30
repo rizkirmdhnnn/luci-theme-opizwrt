@@ -516,6 +516,39 @@ body.sidebar-open header .showSide::after  { transform: rotate(-45deg); }
 }
 .theme-toggle:hover { color: var(--text); border-color: var(--line-strong); }
 .theme-toggle svg { width: 1rem; height: 1rem; }
+
+/* Log out di header -- hanya muncul di ponsel.
+ *
+ * Di desktop tautan ini sudah ada di kaki sidebar, jadi menampilkannya di
+ * dua tempat sekaligus hanya menduakan kendali yang sama. Di ponsel sidebar
+ * disembunyikan seluruhnya dan digantikan bilah tab yang hanya memuat empat
+ * kelompok navigasi, sehingga tanpa tombol ini tidak ada jalan keluar dari
+ * sesi sama sekali.
+ *
+ * Bentuknya mengikuti .theme-toggle supaya keduanya terbaca sebagai sepasang
+ * kendali sistem, bukan dua elemen yang kebetulan bertetangga. Warnanya
+ * dibiarkan netral, tidak merah: menutup sesi bukan tindakan merusak, dan
+ * memerahkannya membuat header terasa waspada tanpa sebab. */
+.header-logout { display: none; }
+@media (max-width: 768px) {
+	.header-logout {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex: 0 0 auto;
+		width: 2rem;
+		height: 2rem;
+		padding: 0;
+		border: 1px solid var(--line);
+		border-radius: 999px;
+		background: var(--surface-2);
+		color: var(--text-2);
+		transition: background var(--dur) var(--ease), color var(--dur) var(--ease),
+		            border-color var(--dur) var(--ease);
+	}
+	.header-logout:hover { color: var(--text); border-color: var(--line-strong); text-decoration: none; }
+	.header-logout svg { width: 1rem; height: 1rem; }
+}
 .theme-toggle .icon-sun  { fill: none; stroke: currentColor; stroke-width: 1.8; }
 .theme-toggle .icon-moon { fill: currentColor; }
 

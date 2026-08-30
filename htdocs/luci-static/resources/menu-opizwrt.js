@@ -170,7 +170,43 @@ return baseclass.extend({
 			if (a && !a.querySelector('svg'))
 				a.insertBefore(ikonNode('logout'), a.firstChild);
 			side.appendChild(kaki);
+
+			this.pasangLogoutHeader(a);
 		}
+	},
+
+	/* Salinan Log out di header, khusus ponsel.
+
+	   Memindahkan Log out ke kaki sidebar membuatnya lenyap di ponsel: di
+	   sana sidebar disembunyikan seluruhnya dan digantikan bilah tab, yang
+	   hanya memuat empat kelompok navigasi. Akibatnya tidak ada satu pun
+	   jalan keluar dari sesi di layar kecil.
+
+	   Diletakkan di header, bukan sebagai tab kelima, karena mengakhiri sesi
+	   bukan tujuan navigasi -- dan menaruhnya sebaris dengan tab yang sering
+	   disentuh mengundang salah tekan.
+
+	   href disalin dari tautan milik LuCI, tidak ditulis ulang, supaya tetap
+	   benar bila jalurnya berubah. Yang menentukan kapan ia tampak adalah
+	   CSS, bukan JavaScript: di desktop kaki sidebar sudah memuatnya. */
+	pasangLogoutHeader: function(sumber) {
+		var wadah = document.querySelector('header .container');
+		if (!wadah || !sumber || document.getElementById('opz-logout'))
+			return;
+
+		var tombol = E('a', {
+			'id': 'opz-logout',
+			'class': 'header-logout',
+			'href': sumber.getAttribute('href'),
+			'title': _('Log out'),
+			'aria-label': _('Log out')
+		}, [ ikonNode('logout') ]);
+
+		var toggle = wadah.querySelector('.theme-toggle');
+		if (toggle)
+			toggle.parentNode.insertBefore(tombol, toggle.nextSibling);
+		else
+			wadah.appendChild(tombol);
 	},
 
 	/* ------------------------------------------------------- bilah tab ponsel */
