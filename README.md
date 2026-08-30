@@ -102,14 +102,30 @@ apk del luci-theme-opizwrt
 ## How it is put together
 
 ```
-htdocs/luci-static/opizwrt/      cascade.css, logo.svg
+src/cascade.css                  the stylesheet you edit (commented)
+tools/build-css.sh               minifies it into htdocs/ with esbuild
+htdocs/luci-static/opizwrt/      cascade.css (GENERATED), logo.svg
 htdocs/luci-static/resources/    menu-opizwrt.js
 ucode/template/themes/opizwrt/   header.ut, footer.ut, sysauth.ut
 root/etc/uci-defaults/           registers the theme on first boot
 ```
 
-`cascade.css` is about 1,900 lines and is the whole stylesheet — LuCI ships no
-base CSS, so a theme covers everything itself.
+**Edit `src/cascade.css`, never the copy under `htdocs/`.** The latter is
+generated — run `./tools/build-css.sh` and commit both. CI rebuilds it and
+fails the build if the two drift apart, so a change made in the wrong file is
+caught rather than silently lost.
+
+The split exists because the minifier cannot run inside OpenWrt's buildroot.
+The only one `luci.mk` knows about is csstidy, which does not understand modern
+CSS: on this file it stopped a third of the way through and still exited 0, so
+the theme installed with two thirds of its rules missing and the build stayed
+green. esbuild does the job correctly outside, and the result is committed so
+an image build only has to clone this repo.
+
+`src/cascade.css` is about 1,900 lines and is the whole stylesheet — LuCI ships
+no base CSS, so a theme covers everything itself. Close to 30% of it is
+comments explaining why each fix exists; minification strips those, taking the
+shipped file from 82 KB to 49 KB.
 
 One part of it is deliberately inherited rather than rewritten: LuCI does not
 use real `<table>` elements but `div`s turned into tables with `display`, and
