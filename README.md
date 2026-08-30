@@ -65,26 +65,6 @@ apk del luci-theme-opizwrt
 
 Or from LuCI: **System → System → Language and Style**.
 
-## Contributing
-
-```
-theme-src/cascade.css            the stylesheet you edit
-tools/build-css.sh               minifies it into htdocs/
-htdocs/luci-static/opizwrt/      cascade.css (GENERATED), logo.svg
-htdocs/luci-static/resources/    menu-opizwrt.js
-ucode/template/themes/opizwrt/   header.ut, footer.ut, sysauth.ut
-```
-
-**Edit `theme-src/cascade.css`, never the copy under `htdocs/`.** Run
-`./tools/build-css.sh` and commit both. CI fails if they drift apart.
-
-The split exists because the only minifier `luci.mk` knows about is csstidy,
-which does not understand modern CSS — on this file it stopped a third of the
-way through and still exited 0. esbuild does the job correctly outside the
-buildroot, and the result is committed.
-
-Source comments are in Indonesian.
-
 ## Credits
 
 [luci-theme-bootstrap](https://github.com/openwrt/luci) (Steven Barth,
