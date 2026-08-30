@@ -76,7 +76,18 @@ jobs:
         working-directory: sdk
         run: |
           cp -r ../src package/luci-theme-opizwrt
-          rm -rf package/luci-theme-opizwrt/.git package/luci-theme-opizwrt/docs
+          # theme-src/ dan tools/ hanya dipakai saat memadatkan CSS di luar
+          # buildroot; keduanya tidak pernah ikut ke paket. Dibuang di sini
+          # supaya direktori paket berisi persis yang dipaketkan, dan supaya
+          # tidak ada direktori yang salah ditafsirkan sistem build. Nama 'src'
+          # sempat dipakai untuk sumber CSS dan justru menggagalkan build
+          # v1.2.2: buildroot memperlakukannya sebagai kode yang harus
+          # dikompilasi lalu berhenti dengan galat pada langkah install.
+          rm -rf package/luci-theme-opizwrt/.git \
+                 package/luci-theme-opizwrt/docs \
+                 package/luci-theme-opizwrt/theme-src \
+                 package/luci-theme-opizwrt/tools \
+                 package/luci-theme-opizwrt/.impeccable
           chmod +x package/luci-theme-opizwrt/root/etc/uci-defaults/30_luci-theme-opizwrt
 
       - name: Build
