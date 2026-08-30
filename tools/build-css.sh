@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Membangun htdocs/luci-static/opizwrt/cascade.css dari src/cascade.css.
+# Membangun htdocs/luci-static/opizwrt/cascade.css dari theme-src/cascade.css.
 #
 # Sumbernya ditulis untuk dibaca manusia: hampir 30% isinya komentar yang
 # menjelaskan mengapa tiap perbaikan ada. Yang dikirim ke perangkat tidak
@@ -16,7 +16,7 @@ set -eu
 
 cd "$(dirname "$0")/.."
 
-SUMBER=src/cascade.css
+SUMBER=theme-src/cascade.css
 TUJUAN=htdocs/luci-static/opizwrt/cascade.css
 
 npx --yes esbuild@0.24.0 "$SUMBER" --minify --outfile="$TUJUAN"

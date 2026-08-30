@@ -32,13 +32,13 @@ jobs:
         working-directory: src
         run: |
           # htdocs/luci-static/opizwrt/cascade.css adalah berkas TURUNAN dari
-          # src/cascade.css. Menyunting yang turunan akan tersapu pada
+          # theme-src/cascade.css. Menyunting yang turunan akan tersapu pada
           # pembangunan berikutnya, jadi CI menolaknya di sini alih-alih
           # membiarkan perubahan itu diam-diam hilang.
           ./tools/build-css.sh
           if ! git diff --quiet -- htdocs/luci-static/opizwrt/cascade.css; then
             echo "GAGAL: cascade.css yang ter-commit tidak cocok dengan hasil"
-            echo "pemadatan src/cascade.css. Jalankan ./tools/build-css.sh"
+            echo "pemadatan theme-src/cascade.css. Jalankan ./tools/build-css.sh"
             echo "lalu commit hasilnya."
             git diff --stat -- htdocs/luci-static/opizwrt/cascade.css
             exit 1
