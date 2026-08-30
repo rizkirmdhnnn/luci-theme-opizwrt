@@ -1274,6 +1274,13 @@ legend {
 	display: inline-block;
 	min-width: 8.5rem;
 	margin: .25rem;
+	/* Tanpa ini kotaknya duduk di baseline, dan sebagai inline-block ia
+	   menggantung di atasnya -- menyisakan ruang descender di bawah yang
+	   tidak ada padanannya di atas. Sel induknya sudah vertical-align:middle,
+	   tapi yang dipusatkan sel adalah kotak barisnya, bukan kotak ini.
+	   Terukur di halaman Interfaces: 18px di atas melawan 24px di bawah pada
+	   baris setinggi 149px. Dengan middle, selisih itu hilang. */
+	vertical-align: middle;
 	border: 1px solid var(--line);
 	border-radius: var(--r-md);
 	background: var(--surface-solid);
