@@ -4,19 +4,13 @@
     "ignoreFiles": [],
     "ignoreValues": [
       {
-        "rule": "gradient-text",
-        "value": "linear-gradient(96deg, var(--brand), var(--brand-2))",
-        "createdAt": "2026-08-30T03:00:20.377Z",
-        "reason": "Wordmark merek Rizpedia pada .footer-mark b dan .login-foot b, bukan heading atau metrik. Keputusan desain asisten dari sesi sebelumnya; user telah meninjau halaman login dan footer berkali-kali lewat tangkapan layar tanpa mempermasalahkannya, tetapi tidak pernah mengonfirmasinya secara eksplisit."
-      },
-      {
         "rule": "layout-transition",
         "value": "*",
         "files": [
           "src/cascade.css"
         ],
-        "createdAt": "2026-08-30T03:23:01.968Z",
-        "reason": "Satu-satunya transisi properti tata letak di berkas ini adalah .cbi-progressbar > div { transition: width }, diverifikasi dengan: grep -n 'transition:[^;]*\\(width\\|height\\|padding\\|margin\\)' src/cascade.css -> tepat satu hasil. LuCI mengisi bilah itu dari ui.js dengan firstElementChild.style.width inline dan tidak pernah menyetel transform, jadi scaleX() menghasilkan bilah yang diam. Ignore bernilai eksak sudah dicoba lebih dulu dan tidak cocok dengan nilai yang diekstrak detektor. Keputusan asisten; user tidak diminta konfirmasi. RISIKO: transisi tata letak baru di berkas ini akan ikut tersaring -- deteksi ulang dengan grep di atas."
+        "createdAt": "2026-08-30T04:36:49.879Z",
+        "reason": "Satu-satunya transisi properti tata letak di berkas ini adalah .cbi-progressbar > div { transition: width }, diverifikasi dengan: grep -n 'transition:[^;]*\\(width\\|height\\|padding\\|margin\\)' src/cascade.css -> tepat satu hasil. LuCI mengisi bilah itu dari ui.js dengan firstElementChild.style.width inline dan tidak pernah menyetel transform, jadi scaleX() menghasilkan bilah yang diam. Ignore bernilai eksak sudah dicoba dan tidak cocok dengan nilai yang diekstrak detektor. Keputusan asisten; user tidak diminta konfirmasi. RISIKO: transisi tata letak baru di berkas ini akan ikut tersaring -- deteksi ulang dengan grep di atas."
       }
     ]
   }
