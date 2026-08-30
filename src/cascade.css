@@ -505,6 +505,20 @@ body.sidebar-open header .showSide::after  { transform: rotate(-45deg); }
 	flex: 0 0 auto;
 	width: 2rem;
 	height: 2rem;
+	/* Keduanya WAJIB, dan bukan sekadar kehati-hatian.
+	 *
+	 * Ini elemen <button>, jadi ia ikut terkena aturan tombol umum di
+	 * bagian Tombol: min-height 2.125rem dan margin 0 .375rem .25rem 0.
+	 * min-height selalu mengalahkan height, sehingga 'height: 2rem' di atas
+	 * tidak pernah berlaku dan tombolnya terukur 32x34 -- elips, bukan
+	 * lingkaran, meski border-radius-nya 999px. Margin bawah .25rem juga
+	 * menariknya 4px turun dari titik tengah header.
+	 *
+	 * Tombol Log out di sebelahnya adalah <a>, tidak terkena aturan itu, dan
+	 * sejak awal sudah 32x32. Perbedaan itulah yang membuat ketidaksimetrisan
+	 * tombol tema terlihat begitu keduanya berdampingan. */
+	min-height: 0;
+	margin: 0;
 	padding: 0;
 	border: 1px solid var(--line);
 	border-radius: 999px;
