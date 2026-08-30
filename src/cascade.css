@@ -2428,8 +2428,63 @@ body.blank-page { display: block; }
 		justify-content: space-between;
 		gap: 1rem;
 		text-align: right;
+		/* 'anywhere', bukan 'break-word', dan hanya di sini.
+		 *
+		 * Keduanya sama-sama memecah kata yang terlalu panjang, tapi hanya
+		 * 'anywhere' yang ikut mengecilkan lebar min-content. Bedanya penting
+		 * karena sel ini flex container: teksnya menjadi item flex anonim
+		 * dengan min-width:auto, yang berarti selebar min-content, dan tidak
+		 * ada selektor yang bisa menyasarnya untuk diberi min-width:0.
+		 *
+		 * Terukur di package-manager pada 390px: deskripsi paket adblock
+		 * memuat URL 75 karakter
+		 * (https://github.com/openwrt/packages/blob/master/net/adblock/...),
+		 * sehingga min-content sel menjadi 592px di dalam kotak 352px dan
+		 * seluruh halaman meluber ke 611px.
+		 *
+		 * Di tempat lain 'anywhere' berbahaya -- pernah membuat kolom pada
+		 * tabel menyusut selebar satu huruf, sehingga 'root' terbaca 'roo/t'.
+		 * Bahaya itu tidak berlaku di sini: kartu selalu selebar penuh, jadi
+		 * kata pendek tidak pernah kehabisan ruang dan tidak pernah dipecah.
+		 * Sel tanpa data-title tetap memakai break-word yang lebih hati-hati. */
+		overflow-wrap: anywhere;
 	}
 	.tbody .tr .td:last-child, .table > .tr .td:last-child { border-bottom: 0; }
+
+	/* Lebar kolom WAJIB dilepas begitu sel berubah jadi kartu.
+	 *
+	 * LuCI menandai sel dengan .col-1 sampai .col-10, yang di berkas ini
+	 * berarti lebar persen tetap -- .col-1 = 8.333%, .col-10 = 83.33%. Itu
+	 * benar selama selnya masih sel tabel dan berjajar mendatar. Setelah
+	 * ditumpuk vertikal, persen itu tidak lagi berarti "sepersekian dari
+	 * baris" melainkan "sepersekian dari lebar layar", sehingga tiap sel
+	 * menyusut sendiri-sendiri sementara isinya tidak ikut menyusut.
+	 *
+	 * Terukur di package-manager pada 390px: sel Size (.col-1) menjadi 29px
+	 * sambil memuat "4.80 KiB" yang tidak boleh dipenggal, sel Version
+	 * (.col-2) 59px, Description (.col-10) 293px. Isi yang tidak muat itulah
+	 * yang tampak saling menimpa, dan tabelnya melar sampai 601px di dalam
+	 * kotak selebar 370px sehingga seluruh halaman ikut meluber.
+	 *
+	 * Disasar lewat [class*="col-"] alih-alih menyebut kesepuluhnya, supaya
+	 * kolom baru dari LuCI ikut tertangani tanpa perlu diingat. */
+	.td[class*="col-"], .th[class*="col-"] { width: auto; }
+
+	/* Lencana di dalam sel boleh membungkus begitu tabelnya jadi kartu.
+	 *
+	 * .ifacebadge memakai white-space:nowrap supaya nama antarmuka seperti
+	 * br-lan.10 tidak pernah terpenggal di tengah -- benar selama isinya
+	 * memang sependek itu. Tapi halaman nftables memakai lencana yang sama
+	 * untuk memuat ekspresi aturan utuh, dan di 390px 'Ingress device name in
+	 * set { br-lan.10, br-lan.20, br-lan.30 }' menjadi 380px di dalam sel
+	 * 352px, sehingga halaman meluber ke 463px.
+	 *
+	 * Isi sepanjang itu adalah kalimat, bukan nama, jadi membungkus justru
+	 * bentuk yang benar. Lencana pendek tidak terpengaruh: kata sependek
+	 * br-lan.10 tidak pernah kehabisan ruang pada kartu selebar penuh.
+	 * white-space diwarisi, jadi .nft-set dan <strong> di dalamnya -- yang
+	 * mendapat nowrap dari lencana induknya -- ikut terlepas. */
+	.td .ifacebadge, .th .ifacebadge { white-space: normal; }
 	.td[data-title]::before {
 		content: attr(data-title);
 		flex: 0 0 auto;
