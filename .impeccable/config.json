@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "gradient-text",
+        "value": "linear-gradient(96deg, var(--brand), var(--brand-2))",
+        "createdAt": "2026-08-30T03:00:20.377Z",
+        "reason": "Wordmark merek Rizpedia pada .footer-mark b dan .login-foot b, bukan heading atau metrik. Keputusan desain asisten dari sesi sebelumnya; user telah meninjau halaman login dan footer berkali-kali lewat tangkapan layar tanpa mempermasalahkannya, tetapi tidak pernah mengonfirmasinya secara eksplisit."
+      }
+    ]
+  }
+}

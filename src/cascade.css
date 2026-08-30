@@ -2522,3 +2522,43 @@ body.blank-page { display: block; }
 	body { background: #fff; color: #000; }
 	.cbi-section, .panel { border: 1px solid #ccc; box-shadow: none; background: #fff; }
 }
+
+/* Berpindah halaman tidak lagi memperlihatkan layar kosong.
+ *
+ * Setiap navigasi LuCI adalah muat halaman penuh, dan sebelum apa pun tercat
+ * peramban harus menunggu /cgi-bin/luci/admin/translations/<lang> -- skrip
+ * sinkron di <head> yang isinya hanya 313 byte tapi dilayani dispatcher LuCI,
+ * sehingga memakan ~112 ms. Diukur pada board ini: HTML tiba di 60 ms, semua
+ * aset lain siap di 80 ms, cat pertama baru terjadi di 232 ms. Selisih itulah
+ * yang terlihat sebagai "render ulang" saat berpindah menu.
+ *
+ * Menunda skrip itu bukan jalan keluar: skrip ber-defer di <head> berjalan
+ * SETELAH skrip sinkron di <body>, sehingga 'L = new LuCI(...)' akan dieksekusi
+ * sebelum terjemahan tersedia. Urutan itu milik LuCI, bukan milik tema.
+ *
+ * Jadi yang dihilangkan bukan penantiannya, melainkan tampilan kosongnya:
+ * peramban menahan halaman lama tetap terlihat sampai yang baru siap dicat,
+ * lalu menyilangkan keduanya. Waktu muat tidak berubah sedikit pun.
+ *
+ * Sengaja tanpa view-transition-name pada .main-left. Sidebar dikirim dalam
+ * keadaan display:none dan baru diisi menu-opizwrt.js, jadi pada tangkapan
+ * halaman baru ia belum ada; menamainya akan membuat peramban menganimasikan
+ * sidebar lama KELUAR karena tak menemukan pasangannya -- persis kebalikan
+ * dari yang diinginkan.
+ *
+ * Peramban tanpa dukungan mengabaikan seluruh blok ini dan berperilaku sama
+ * seperti sebelumnya. */
+@view-transition { navigation: auto; }
+
+::view-transition-old(root),
+::view-transition-new(root) {
+	animation-duration: .18s;
+	animation-timing-function: var(--ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	/* Silang-pudar tetap dipakai -- itu yang menutupi layar kosong -- tapi
+	   dipersingkat sampai praktis tak terasa sebagai gerakan. */
+	::view-transition-old(root),
+	::view-transition-new(root) { animation-duration: .01ms; }
+}
