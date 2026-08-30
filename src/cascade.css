@@ -2586,6 +2586,39 @@ body.blank-page { display: block; }
 		margin-left: auto;
 		margin-right: auto;
 	}
+
+	/* Seluruh isi kartu ikut ke tengah, bukan hanya kotaknya.
+	 *
+	 * Memusatkan kotaknya saja justru membuat kartu terlihat lebih timpang:
+	 * kotak di tengah, lalu daftar status dan deretan tombol di bawahnya
+	 * menempel ke kiri. Tiga poros berbeda dalam satu kartu.
+	 *
+	 * Disasar lewat :has(.ifacebox) supaya berhenti di kartu antarmuka saja.
+	 * Kartu lain -- daftar paket, sewa DHCP -- isinya bacaan dan tabel nilai
+	 * yang justru lebih mudah dipindai dengan tepi kiri yang rata, dan tidak
+	 * boleh ikut terpusat. */
+	.tr:has(.ifacebox) .td { text-align: center; }
+
+	/* Deretan tombol dipusatkan dengan flex, bukan diserahkan pada
+	   text-align.
+
+	   Tiap tombol membawa margin kanan .375rem agar tidak berdempetan. Margin
+	   tombol TERAKHIR tetap ikut terhitung sebagai lebar isi, sehingga
+	   text-align:center memusatkan deretan berikut ekor kosong itu dan
+	   tombolnya tampak bergeser ke kiri -- terukur 15px di kiri melawan 21px
+	   di kanan, selisihnya persis selebar satu margin.
+
+	   Dengan flex, jarak antar tombol diurus gap dan marginnya dinolkan,
+	   jadi tidak ada ekor yang ikut dihitung. flex-wrap menjaga tombol tetap
+	   turun rapi bila layarnya lebih sempit lagi. */
+	.tr:has(.ifacebox) .td.cbi-section-table-cell > div {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: .375rem .5rem;
+	}
+	.tr:has(.ifacebox) .td.cbi-section-table-cell .btn,
+	.tr:has(.ifacebox) .td.cbi-section-table-cell button { margin: 0; }
 	.td[data-title]::before {
 		content: attr(data-title);
 		flex: 0 0 auto;
