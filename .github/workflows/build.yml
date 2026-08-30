@@ -26,6 +26,25 @@ jobs:
         with:
           path: src
 
+      # Dijalankan sebelum SDK diunduh supaya gagal dalam hitungan detik,
+      # bukan setelah sepuluh menit.
+      - name: Pastikan cascade.css hasil pemadatan sinkron dengan sumbernya
+        working-directory: src
+        run: |
+          # htdocs/luci-static/opizwrt/cascade.css adalah berkas TURUNAN dari
+          # src/cascade.css. Menyunting yang turunan akan tersapu pada
+          # pembangunan berikutnya, jadi CI menolaknya di sini alih-alih
+          # membiarkan perubahan itu diam-diam hilang.
+          ./tools/build-css.sh
+          if ! git diff --quiet -- htdocs/luci-static/opizwrt/cascade.css; then
+            echo "GAGAL: cascade.css yang ter-commit tidak cocok dengan hasil"
+            echo "pemadatan src/cascade.css. Jalankan ./tools/build-css.sh"
+            echo "lalu commit hasilnya."
+            git diff --stat -- htdocs/luci-static/opizwrt/cascade.css
+            exit 1
+          fi
+          echo "OK: berkas turunan sinkron dengan sumber"
+
       - name: Pasang dependensi build
         run: |
           sudo apt-get update
@@ -104,13 +123,18 @@ jobs:
           CSS="$ROOT/www/luci-static/opizwrt/cascade.css"
           JS="$ROOT/www/luci-static/resources/menu-opizwrt.js"
 
-          CSS_ASLI=$(wc -c < ../src/htdocs/luci-static/opizwrt/cascade.css)
-          CSS_JADI=$(wc -c < "$CSS")
-          echo "  cascade.css: $CSS_JADI byte (sumber $CSS_ASLI)"
-          # Batas 70%: memberi ruang bagi pemadatan yang sah, tapi menangkap
-          # pemotongan seperti 80k -> 11k.
-          if [ "$CSS_JADI" -lt $(( CSS_ASLI * 70 / 100 )) ]; then
-            echo "GAGAL: cascade.css menyusut di bawah 70% -- diduga terpotong"; exit 1
+          # Dulu penjaga ini memakai ambang 70%, karena berkas yang dikirim
+          # boleh saja lebih kecil dari sumber akibat pemadatan luci.mk.
+          # Sekarang pemadatan itu mati (lihat Makefile) dan berkas di htdocs/
+          # sudah padat sejak di-commit, jadi yang keluar dari buildroot harus
+          # PERSIS sama. Perbandingan byte-per-byte menangkap pemotongan
+          # sekecil apa pun, bukan cuma yang di bawah 70%.
+          CSS_REPO=../src/htdocs/luci-static/opizwrt/cascade.css
+          echo "  cascade.css: $(wc -c < "$CSS") byte (repo $(wc -c < "$CSS_REPO"))"
+          if ! cmp -s "$CSS_REPO" "$CSS"; then
+            echo "GAGAL: cascade.css terpasang berbeda dari yang ada di repo"
+            cmp "$CSS_REPO" "$CSS" || true
+            exit 1
           fi
 
           # Penanda dari ujung-ujung berkas: kalau yang terakhir ada, seluruh
