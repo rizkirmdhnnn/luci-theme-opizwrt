@@ -641,10 +641,7 @@ footer a:hover { color: var(--accent); }
 .footer-mark { color: var(--text-2); }
 .footer-mark b {
 	font-weight: 600;
-	background: linear-gradient(96deg, var(--brand), var(--brand-2));
-	-webkit-background-clip: text;
-	background-clip: text;
-	color: transparent;
+	color: var(--brand);
 }
 .footer-sep { opacity: .5; }
 
@@ -2131,10 +2128,7 @@ body.blank-page { display: block; }
 }
 .login-foot b {
 	font-weight: 600;
-	background: linear-gradient(96deg, var(--brand), var(--brand-2));
-	-webkit-background-clip: text;
-	background-clip: text;
-	color: transparent;
+	color: var(--brand);
 }
 .login-page .alert-message { margin-bottom: 1rem; }
 
