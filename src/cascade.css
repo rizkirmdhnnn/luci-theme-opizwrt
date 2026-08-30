@@ -2367,8 +2367,34 @@ body.blank-page { display: block; }
 	   di sini; begitu sel bukan lagi sel tabel, ia tak punya guna.
 	   Kelas .nowrap yang berdiri sendiri -- pada lencana dan alamat --
 	   sengaja tidak disentuh. */
-	.td.nowrap, .th.nowrap { white-space: normal; }
-	.td.nowrap > div { white-space: normal; }
+	/* Berlaku untuk SEMUA sel, bukan hanya yang berkelas .nowrap.
+	 *
+	 * Dulu hanya .td.nowrap yang dilepas, dengan asumsi kelas itulah satu-
+	 * satunya sumber nowrap. Keliru: halaman memuat CSS khususnya sendiri
+	 * lewat node.css, dan package-manager memberi sel versinya .version
+	 * dengan white-space:nowrap dari sana. Terukur pada tab Updates di 390px,
+	 * versi kernel '6.12.94~1c072e06…-r1 » 6.12.94~54c42a9a…-r1' mendorong
+	 * halaman ke 470px.
+	 *
+	 * Prinsipnya sederhana: begitu sel menjadi kartu selebar penuh, nowrap
+	 * tidak pernah menolong -- kata pendek tidak butuh dilindungi karena
+	 * ruangnya berlebih, dan kata panjang hanya jadi luberan. Jadi dilepas
+	 * di tingkat sel, dan keturunannya dibuat mengikuti selnya, supaya elemen
+	 * seperti <span> pembungkus hash versi ikut terlepas tanpa perlu tahu
+	 * kelas apa yang dipakai halaman mana.
+	 *
+	 * pre dan code dikecualikan: di sana spasi membawa makna, dan
+	 * membungkusnya mengubah isi, bukan sekadar bentuk. */
+	/* Ditulis lewat '.table .tr .td' dan bukan '.td' semata karena harus
+	   mengalahkan gaya yang disuntikkan LuCI per halaman. package-manager
+	   mengirim <style> inline berisi '.td.version, .td.size { white-space:
+	   nowrap }' -- specificity (0,2,0), dan karena disuntikkan setelah
+	   cascade.css ia menang bahkan bila specificity-nya seri. Rantai tiga
+	   kelas ini (0,3,0) mengunggulinya tanpa perlu !important, yang akan
+	   menutup pintu bagi nowrap yang memang disengaja di kemudian hari. */
+	.table .tr .td, .table .tr .th { white-space: normal; }
+	.table .tr .td *:not(pre):not(code),
+	.table .tr .th *:not(pre):not(code) { white-space: inherit; }
 	.cbi-section-actions { white-space: normal; text-align: left; }
 
 	/* Hanya <table> asli TANPA kelas .table milik LuCI. Tabel LuCI sudah
