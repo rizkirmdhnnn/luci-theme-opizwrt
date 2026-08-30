@@ -2559,6 +2559,33 @@ body.blank-page { display: block; }
 	 * white-space diwarisi, jadi .nft-set dan <strong> di dalamnya -- yang
 	 * mendapat nowrap dari lencana induknya -- ikut terlepas. */
 	.td .ifacebadge, .th .ifacebadge { white-space: normal; }
+
+	/* Kotak antarmuka dipusatkan mendatar begitu sel jadi kartu.
+	 *
+	 * Di ponsel selnya melebar penuh sementara kotaknya tetap selebar isinya,
+	 * sehingga ia terdampar di tepi kiri: terukur di 390px, kotak 136px di
+	 * dalam sel 314px -- 4px di kiri melawan 174px di kanan. Sel lain di baris
+	 * yang sama mengisi penuh, jadi hanya kotak ini yang terlihat timpang.
+	 *
+	 * Sengaja hanya di ponsel, meski di desktop kotaknya juga tidak terpusat
+	 * (terukur 14px kiri melawan 191px kanan dalam sel 341px). Di sana ia
+	 * masih menjadi kolom pertama sebuah tabel -- kolom identitas, yang tepi
+	 * kirinya sejajar dengan judul bagian di atasnya dan dengan kolom yang
+	 * sama pada baris lain. Memusatkannya akan memutus garis tegak itu. Di
+	 * ponsel kolomnya sudah tidak ada: kotak itu berdiri sendiri di dalam
+	 * kartu, jadi tidak ada tepi apa pun yang perlu diikuti.
+	 *
+	 * display:block dengan margin mendatar auto, bukan text-align:center pada
+	 * selnya: yang perlu dipusatkan kotaknya, bukan teks apa pun yang
+	 * kebetulan ada di sel yang sama. width:max-content menjaga lebarnya
+	 * tetap mengikuti isi, dan max-width menahannya bila isinya panjang. */
+	.td .ifacebox {
+		display: block;
+		width: max-content;
+		max-width: 100%;
+		margin-left: auto;
+		margin-right: auto;
+	}
 	.td[data-title]::before {
 		content: attr(data-title);
 		flex: 0 0 auto;
