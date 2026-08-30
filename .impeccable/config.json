@@ -8,6 +8,12 @@
         "value": "linear-gradient(96deg, var(--brand), var(--brand-2))",
         "createdAt": "2026-08-30T03:00:20.377Z",
         "reason": "Wordmark merek Rizpedia pada .footer-mark b dan .login-foot b, bukan heading atau metrik. Keputusan desain asisten dari sesi sebelumnya; user telah meninjau halaman login dan footer berkali-kali lewat tangkapan layar tanpa mempermasalahkannya, tetapi tidak pernah mengonfirmasinya secara eksplisit."
+      },
+      {
+        "rule": "layout-transition",
+        "value": "width .25s ease-in",
+        "createdAt": "2026-08-30T03:11:16.635Z",
+        "reason": "LuCI mengisi .cbi-progressbar > div dari ui.js dengan firstElementChild.style.width = '%.2f%%'.format(percent) -- width inline, tidak pernah transform. Tema hanya mengirim CSS, jadi transform:scaleX() akan menghasilkan bilah yang tidak bergerak sama sekali. Diverifikasi langsung di sumber ui.js pada perangkat. Alasan tercatat di src/cascade.css. Keputusan asisten; user tidak diminta konfirmasi."
       }
     ]
   }
