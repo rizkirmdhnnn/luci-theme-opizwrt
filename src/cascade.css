@@ -1938,6 +1938,15 @@ body.modal-overlay-active #modal_overlay { opacity: 1; visibility: visible; }
 	   teksnya dengan mode pencampuran. */
 	background: var(--accent-weak);
 	background: color-mix(in srgb, var(--accent) 30%, transparent);
+	/* Menganimasikan width memang memicu layout, dan transform: scaleX() akan
+	   lebih murah -- tapi di sini bukan pilihan. LuCI mengisi bilah ini dari
+	   ui.js dengan
+	       firstElementChild.style.width = '%.2f%%'.format(percent)
+	   yaitu width inline, dan tidak pernah menyetel transform apa pun. Tema
+	   hanya mengirim CSS, jadi beralih ke scaleX() akan menghasilkan bilah
+	   yang tidak bergerak sama sekali. Sifatnya sama dengan tata letak
+	   div-tabel dan .cbi-dropdown: perilaku LuCI yang diwarisi, bukan selera.
+	   Biayanya pun kecil -- satu elemen, hanya saat nilainya berubah. */
 	transition: width .25s ease-in;
 }
 .cbi-progressbar::after {
