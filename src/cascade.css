@@ -403,12 +403,29 @@ header .status,
 header #indicators {
 	display: flex;
 	align-items: center;
-	flex-wrap: wrap;
 	gap: .375rem;
-	flex: 1 1 auto;
+	/* Dulu 'flex: 1 1 auto', yang membuat wadah ini memuai mengisi seluruh
+	   ruang sisa sehingga indikatornya menempel di kiri, tepat setelah nama
+	   perangkat. Kini ia hanya selebar isinya, dan margin otomatis di kiri
+	   menyerap ruang sisa itu -- mendorong indikator beserta tombol tema ke
+	   ujung kanan. Saat tidak ada indikator sama sekali, lebarnya nol dan
+	   tombol tema tetap di tempatnya seperti sebelumnya. */
+	flex: 0 1 auto;
 	min-width: 0;
-	margin-left: .375rem;
+	margin-left: auto;
+	/* Dulu 'flex-wrap: wrap'. Header tingginya dipatok var(--header-h), jadi
+	   membungkus tidak menumbuhkannya -- barisnya justru meluber keluar dan
+	   menimpa isi halaman. Terukur di 390px dengan tiga indikator panjang:
+	   wadahnya menjadi 90px di dalam header setinggi 56px.
+	   Dengan nowrap ia tetap satu baris; kalau tidak muat, menggulir
+	   mendatar. Menggulir dipilih daripada dipotong karena indikator LuCI
+	   bisa berupa tautan -- 'Unsaved changes' membawa ke halaman terap --
+	   dan memotongnya berarti menyembunyikan kendali, bukan sekadar teks. */
+	flex-wrap: nowrap;
+	overflow-x: auto;
+	scrollbar-width: none;
 }
+header #indicators::-webkit-scrollbar { display: none; }
 
 /* Indikator LuCI (jumlah perubahan, status polling) datang sebagai <span>
    tanpa kelas yang bisa diandalkan, jadi disasar lewat posisinya. */
