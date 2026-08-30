@@ -33,7 +33,7 @@ LUCI_PKGARCH:=all
 # Sebagai gantinya, pemadatan dikerjakan di luar buildroot oleh
 # tools/build-css.sh (esbuild) dan hasilnya ikut di-commit. Jadi berkas di
 # htdocs/ SUDAH padat saat sampai ke sini, dan sumber yang berkomentar hidup
-# di src/cascade.css. CI menolak build bila keduanya tidak sinkron.
+# di theme-src/cascade.css. CI menolak build bila keduanya tidak sinkron.
 #
 # Catatan yang perlu diluruskan: versi lama komentar ini menyatakan uhttpd
 # mengirim berkas dalam keadaan terkompresi. Itu keliru -- uhttpd tidak punya
