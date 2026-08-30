@@ -16,24 +16,17 @@ and a login page of its own.
   <img src="docs/mobile.jpg" alt="On a phone: bottom tab bar, tables as cards" width="300">
 </p>
 
-**Glass is for chrome, never for content.** The header, sidebar and login card
-float and may be blurred — they hold almost no data. Anything holding an IP
-address, a byte counter or a table sits on a near-opaque surface instead. Blur
-behind text makes data hazy and forces the GPU to recomposite on every scroll,
-which a Cortex-A53 feels.
-
-- Dark mode that is defined, not filtered — applied before first paint, so no
-  white flash on load
-- Its own login page, not the admin chrome with an empty sidebar
-- Phones get a drawer sidebar, tables as cards, scrolling tab strips
-- Tabular numerals so columns stop shifting as values update
-
 ## Requirements
 
-LuCI with **ucode** templates — OpenWrt **24.10+**. Tested on 25.12.5.
-Releases are `.apk`, so they need OpenWrt 25.12+; on older releases build from
-source. The theme carries no architecture-specific code, so one package works
-on every target of the same release.
+LuCI with **ucode** templates — OpenWrt **24.10+**. Releases are `.apk`, so they
+need OpenWrt 25.12+; on older releases build from source. The theme carries no
+architecture-specific code, so one package works on every target of the same
+release.
+
+> **Only tested on one setup.** This theme was built for, and has only been
+> installed on, OpenWrt 25.12.5 running on an Orange Pi Zero 3
+> (`sunxi/cortexa53`). It should work anywhere LuCI does, but no other release
+> or target has been verified. Reports welcome.
 
 ## Install
 
