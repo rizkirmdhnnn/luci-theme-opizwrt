@@ -11,12 +11,6 @@
       },
       {
         "rule": "layout-transition",
-        "value": "width .25s ease-in",
-        "createdAt": "2026-08-30T03:11:16.635Z",
-        "reason": "LuCI mengisi .cbi-progressbar > div dari ui.js dengan firstElementChild.style.width = '%.2f%%'.format(percent) -- width inline, tidak pernah transform. Tema hanya mengirim CSS, jadi transform:scaleX() akan menghasilkan bilah yang tidak bergerak sama sekali. Diverifikasi langsung di sumber ui.js pada perangkat. Alasan tercatat di src/cascade.css. Keputusan asisten; user tidak diminta konfirmasi."
-      },
-      {
-        "rule": "layout-transition",
         "value": "*",
         "files": [
           "src/cascade.css"
