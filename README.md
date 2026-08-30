@@ -12,6 +12,10 @@ and a login page of its own.
 </tr>
 </table>
 
+<p align="center">
+  <img src="docs/mobile.jpg" alt="On a phone: bottom tab bar, tables as cards" width="300">
+</p>
+
 ## The idea
 
 **Glass is for chrome, never for content.**
